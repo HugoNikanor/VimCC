@@ -163,6 +163,8 @@ function normalMode()
 	while running do
 		local event, keyPress, beingHeld = os.pullEventRaw("key")
 
+		-- TODO
+		-- '-' might behave strange
 		local inNumber = tonumber(keyPress)
 		inNumber = inNumber - 1
 		if keyPress ~= nil then
@@ -241,6 +243,34 @@ function normalMode()
 			numMod = "0"
 		end
 
+		if keyPress == keys.d and prevKey == keys.d then
+			hasChanged = true;
+			if tonumber(numMod) == 0 then
+				numMod = "1"
+			end
+			for i=1, tonumber(numMod) do
+				table.remove(lines, currentLine)
+			end
+			numMod = "0"
+			redrawScreen()
+		end
+
+		-- currently sets the line jumped to as the top line
+		-- TODO possible bugs
+		-- allows the sceen to scroll further than usual
+		-- when entering a 0 manually, still goes to bottom
+		if keyPress == keys.g and prevKey == keys.rightShift or prevKey == keys.leftShift then
+			if tonumber(numMod) == 0 or tonumber(numMod) > length then
+				currentLine = length
+				topLine = length
+			else
+				currentLine = tonumber(numMod)
+				topLine = currentLine
+			end
+			numMod = "0"
+			redrawScreen()
+		end
+
 		if keyPress == keys.i then
 			if prevKey == keys.leftShift or prevKey == keys.rightShift then
 				cursorX = insertMode(currentLine, cursorX, "beginning")
@@ -297,6 +327,8 @@ termX, termY = term.getSize()
 hasChanged = false
 
 fileName = args[1]
+--TODO create new file if file doesn't exist
+--TODO other safeguards
 local file = fs.open(fileName, "r")
 
 -- what absolute line are selected
