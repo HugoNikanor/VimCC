@@ -1,0 +1,63 @@
+local args = {...}
+
+-- Check if a file is supplied
+if args[1] == nil then
+	error("no file selected")
+end
+
+-- get size of sceen
+local termX, termY = term.getSize()
+
+-- open file
+local file = fs.open(args[1], "r")
+
+-- load file into array
+local lines = {}
+local lineNo = 1
+local tempLine = file.readLine()
+while tempLine ~= nil do
+	lines[lineNo] = tempLine
+	lineNo = lineNo + 1
+	tempLine = file.readLine()
+end
+
+local fileSize = lineNo
+
+file.close()
+
+
+local linePos = 1
+
+local keyEvent
+local event
+
+while keyEvent ~= keys.c do 
+
+	term.clear()
+	term.setCursorPos(1, 1)
+
+
+	for i=linePos, linePos+termY do
+		print(lines[i])
+	end
+
+	event, keyEvent = os.pullEvent("key")
+
+	if keyEvent == keys.j then
+		linePos = linePos + 1
+	elseif keyEvent == keys.k then
+		linePos = linePos - 1
+	end
+
+	if linePos < 1 then
+		linePos = 1
+	end
+	if linePos >= fileSize then
+		linePos = fileSize - 1
+	end
+
+end
+
+term.setCursorPos(1, termY)
+-- This eats the keys event 'c' when exiting
+os.sleep(0.1)
