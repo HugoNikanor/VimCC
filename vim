@@ -1,7 +1,7 @@
 function redrawScreen()
 	term.setCursorPos(1, 1)
 	term.clear()
-	for i=currentLine, currentLine+termY-2 do
+	for i=topLine, topLine+termY-2 do
 		if lines[i] ~= nil then
 			print(lines[i])
 		else
@@ -46,6 +46,8 @@ function commandMode()
 				running = false
 			end
 			if key == keys.backspace then
+				term.setCursorPos(pos, termY)
+
 				command = string.sub(command, 1, string.len(command) - 1)
 				pos = pos - 1
 				if pos < 1 then
@@ -80,9 +82,18 @@ function insertMode(line, column, pos)
 		strBefore = string.sub(lines[line], 1, column)
 		strAfter = string.sub(lines[line], column + 1)
 		column = column + 1
+	elseif pos == "beginning" then
+		strBefore = ""
+		strAfter = lines[line]
+		column = 1
+	elseif pos == "end" then
+		strBefore = lines[line]
+		strAfter = ""
+		column = string.len(lines[line]) + 1
 	end
 
-		term.setCursorPos( column, line )
+	term.setCursorPos( column, line )
+
 	local event, key = os.pullEvent()
 	while true do
 		if event == "key" then
@@ -124,7 +135,7 @@ function insertMode(line, column, pos)
 
 			strBefore = strBefore..key
 			term.clearLine()
-			term.setCursorPos(1, line)
+			term.setCursorPos(1, currentLine-topLine+1)
 			term.write(strBefore..strAfter)
 			lines[line] = strBefore..strAfter
 
@@ -146,40 +157,103 @@ function normalMode()
 	local running = true
 
 	local prevKey = nil
+
+	local numMod = "0"
+
 	while running do
 		local event, keyPress, beingHeld = os.pullEventRaw("key")
 
+		local inNumber = tonumber(keyPress)
+		inNumber = inNumber - 1
+		if keyPress ~= nil then
+			if inNumber >= 1 and inNumber <= 9 then
+				numMod = numMod..inNumber
+			end
+			if inNumber == 10 then
+				numMod = numMod.."0"
+			end
+		end
+
 		-- basic cursor move commands
 		if keyPress == keys.l then
-			cursorX = cursorX + 1
+			if tonumber(numMod) == 0 then
+				numMod = "1"
+			end
+			cursorX = cursorX + tonumber(numMod)
+			numMod = "0"
 		end
 		if keyPress == keys.h then
-			cursorX = cursorX - 1
+			if tonumber(numMod) == 0 then
+				numMod = "1"
+			end
+			cursorX = cursorX - tonumber(numMod)
+			numMod = "0"
 		end
 		if keyPress == keys.j then
-			cursorY = cursorY + 1
+			if tonumber(numMod) == 0 then
+				numMod = "1"
+			end
+			cursorY = cursorY + tonumber(numMod)
+			currentLine = currentLine + tonumber(numMod)
+			numMod = "0"
 			if cursorY > termY - 2 then
 				cursorY = termY - 2
-				currentLine = currentLine + 1
+				topLine = topLine + 1
 			end
 			if cursorY > length then
 				cursorY = length
+				currentLine = length
 			end
 			if currentLine > length then
 				currentLine = length
+				topLine = length
 			end
 			redrawScreen()
 		end
 		if keyPress == keys.k then
-			cursorY = cursorY - 1
+			if tonumber(numMod) == 0 then
+				numMod = "1"
+			end
+			cursorY = cursorY - tonumber(numMod)
+			currentLine = currentLine - tonumber(numMod)
+			numMod = "0"
 			if cursorY < 1 then
 				cursorY = 1
-				currentLine = currentLine - 1
+				topLine = topLine - 1
 			end
 			if currentLine < 1 then
 				currentLine = 1
+				topLine = 1
 			end
 			redrawScreen()
+		end
+
+		if keyPress == keys.x then
+			if tonumber(numMod) == 0 then
+				numMod = "1"
+			end
+			hasChanged = true;
+			temp = lines[currentLine]
+			a = string.sub(temp, 1, cursorX - 1)
+			b = string.sub(temp, cursorX + tonumber(numMod), string.len(temp)) 
+			lines[currentLine] = a..b
+			redrawScreen()
+			numMod = "0"
+		end
+
+		if keyPress == keys.i then
+			if prevKey == keys.leftShift or prevKey == keys.rightShift then
+				cursorX = insertMode(currentLine, cursorX, "beginning")
+			else
+				cursorX = insertMode(currentLine, cursorX, "here")
+			end
+		end
+		if keyPress == keys.a then
+			if prevKey == keys.leftShift or prevKey == keys.rightShift then
+				cursorX = insertMode(currentLine, cursorX, "end")
+			else
+				cursorX = insertMode(currentLine, cursorX, "after")
+			end
 		end
 
 		-- Check if alt-gr is down and colon is pressed
@@ -211,13 +285,6 @@ function normalMode()
 			end
 		end
 
-		if keyPress == keys.i then
-			cursorX = insertMode(cursorY, cursorX, "here")
-		end
-		if keyPress == keys.a then
-			cursorX = insertMode(cursorY, cursorX, "after")
-		end
-
 		term.setCursorPos(cursorX, cursorY)
 		prevKey = keyPress
 	end
@@ -235,6 +302,8 @@ local file = fs.open(fileName, "r")
 -- what absolute line are selected
 currentLine = 1
 currentColumn = 1
+
+topLine = 1
 
 lines = {}
 local counter = 0
