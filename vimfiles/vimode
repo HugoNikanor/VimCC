@@ -138,6 +138,7 @@ function normalMode()
 	-- Keys that do something when pressed
 	--
 	-- Used to differentiate from those keys that act like modifiers
+	--[[
 	local triggerKeys = {
 		x = "x",
 		G = "G",
@@ -146,6 +147,8 @@ function normalMode()
 		h = "h",
 		l = "l"
 	}
+	]]
+	local triggered = false
 	local keyPresses = {}
 
 	while running do
@@ -172,10 +175,13 @@ function normalMode()
 		if event == "char" then
 
 			keyPresses[#keyPresses + 1] = key
+			triggered = false
 
+			--[[
 			if triggerKeys[key] ~= nil then
 				--parse arguments before the trigger key
 			end
+			]]
 
 
 			if key == "l" then
@@ -186,9 +192,11 @@ function normalMode()
 				if mod ~= nil then
 					cursorX = cursorX + mod
 				end
+				triggered = true
 			end
 			if key == "h" then
 				cursorX = cursorX - 1
+				triggered = true
 			end
 			if key == "j" then
 				cursorY = cursorY + 1
@@ -206,6 +214,7 @@ function normalMode()
 					global.setVar( global.getVar("length") )
 				end
 				screen.redraw()
+				triggered = true
 			end
 			if key == "k" then
 				cursorY = cursorY - 1
@@ -219,6 +228,7 @@ function normalMode()
 					global.setVar("topLine", 1)
 				end
 				screen.redraw()
+				triggered = true
 			end
 
 			if key == "x" then
@@ -228,38 +238,38 @@ function normalMode()
 				b = string.sub(temp, cursorX + 1, string.len(temp)) 
 				global.setLine(global.getVar("currentLine"), a..b)
 				screen.redraw()
+				triggered = true
 			end
 
 			if key == "i" then
 				cursorX = insertMode(global.getVar("currentLine"), cursorX, "here")
+				triggered = true
 			end
 			if key == "I" then
 				cursorX = insertMode(global.getVar("currentLine"), cursorX, "beginning")
+				triggered = true
 			end
 			if key == "a" then
 				cursorX = insertMode(global.getVar("currentLine"), cursorX, "after")
+				triggered = true
 			end
 			if key == "A" then
 				cursorX = insertMode(global.getVar("currentLine"), cursorX, "end")
+				triggered = true
 			end
 
 			if key == "d" then
-				if keyPresses.d ~= nil then
+				--TODO allow the first 'd' to be anywhere in the keyPresses table
+				if keyPresses[1] == "d" and keyPresses[#keyPresses] == "d" then
 					global.setVar("hasChanged", true)
 					global.removeLine(global.getVar("currentLine"))
 
 					screen.redraw()
+					triggered = true
 				end
 				keyPresses[#keyPresses + 1] = "d"
-				-- temporarly make 'd' a triggr key
-				triggerKeys.d = "d"
 			end
 
-			-- if the keypress triggered something
-			-- then reset the pressed keys
-			if triggerKeys[key] ~= nil then
-				keyPresses = {}
-			end
 
 			if key == ":" then
 				local command = commandMode()
@@ -283,6 +293,14 @@ function normalMode()
 					file.write()
 					running = false
 				end
+
+				triggered = true
+			end
+
+			-- clears the list of pressed keys if the last button press
+			-- did something
+			if triggered then
+				keyPresses = {}
 			end
 
 			term.setCursorPos(cursorX, cursorY)
