@@ -1,0 +1,31 @@
+
+function write()
+	local file = fs.open(global.getVar("fileName"), "w")
+	for i=1, global.getVar("length") do
+		file.writeLine(global.getLine(i))
+	end
+	file.close()
+
+	global.setVar("hasChanged", false)
+end
+
+--[[
+	Returns the contents of the set file in a table
+	of strings
+]]--
+function read(path)
+	--TODO create new file if file doesn't exist
+	--TODO other safeguards
+	local file = fs.open(global.getVar("fileName"), "r")
+	local lines = {}
+	local counter = 0
+	local tempLine = file.readLine()
+	while tempLine ~= nil do
+		counter = counter + 1
+		lines[counter] = tempLine
+		tempLine = file.readLine()
+	end
+	global.setVar("length", counter)
+	file.close()
+	return lines
+end

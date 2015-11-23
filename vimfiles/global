@@ -6,13 +6,13 @@ local globals = {
 	currentLine = 1,
 	currentColumn = 1,
 	topLine = 1,
-	length = 1
+	length = 1,
 }
 
 function getVar(key)
 	local temp = globals[key]
 	if temp == nil then
-		error("no such key: " .. key)
+		error("get:no such key: " .. key)
 	end
 	return globals[key]
 end
@@ -20,7 +20,7 @@ end
 function setVar(key, value)
 	local temp = globals[key]
 	if temp == nil then
-		error("no such key: " .. key)
+		error("set:no such key: " .. key)
 	end
 	if value == nil then
 		error( "you forgot the value: " .. key )
@@ -46,4 +46,9 @@ end
 
 function setLines(inLines)
 	lines = inLines
+end
+
+function removeLine(lineNo)
+	table.remove(lines, lineNo)
+	setVar("length", getVar("length") - 1)
 end

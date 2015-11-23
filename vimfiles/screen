@@ -1,0 +1,13 @@
+
+function redraw()
+	term.setCursorPos(1, 1)
+	term.clear()
+	local topLine = global.getVar("topLine")
+	for i=topLine, topLine+global.getVar("termY")-2 do
+		if global.getLine(i) ~= nil then
+			print(global.getLine(i))
+		else
+			print("~")
+		end
+	end
+end
