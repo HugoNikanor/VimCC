@@ -11,3 +11,11 @@ function redraw()
 		end
 	end
 end
+
+function debug(message)
+	term.setCursorPos(10, 10)
+	print(message)
+	os.pullEvent("key")
+end
+
+

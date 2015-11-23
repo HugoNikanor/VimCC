@@ -114,7 +114,7 @@ function insertMode(line, column, pos)
 
 			strBefore = strBefore..key
 			term.clearLine()
-			term.setCursorPos(1, global.getVar("currentLine")-topLine+1)
+			term.setCursorPos(1, global.getVar("currentLine")-global.getVar("topLine")+1)
 			term.write(strBefore..strAfter)
 			global.setLine(line, strBefore..strAfter)
 
@@ -135,141 +135,133 @@ function normalMode()
 
 	local running = true
 
-	local prevKey = nil
-
-	local numMod = "0"
+	-- Keys that do something when pressed
+	--
+	-- Used to differentiate from those keys that act like modifiers
+	local triggerKeys = {
+		x = "x",
+		G = "G",
+		j = "j",
+		k = "k",
+		h = "h",
+		l = "l"
+	}
+	local keyPresses = {}
 
 	while running do
-		local event, keyPress, beingHeld = os.pullEventRaw("key")
+		local event, key, beingHeld = os.pullEventRaw()
 
-		-- TODO
-		-- '-' might behave strange
-		local inNumber = tonumber(keyPress)
-		inNumber = inNumber - 1
-		if keyPress ~= nil then
-			if inNumber >= 1 and inNumber <= 9 then
-				numMod = numMod..inNumber
+		if event == "key" then
+			-- currently sets the line jumped to as the top line
+			-- TODO possible bugs
+			-- allows the sceen to scroll further than usual
+			-- when entering a 0 manually, still goes to bottom
+			if key == keys.g and prevKey == keys.rightShift or prevKey == keys.leftShift then
+				if tonumber(numMod) == 0 or tonumber(numMod) > global.getVar("length") then
+					global.setVar("currentLine", global.getVar("length"))
+					topLine = global.getVar("length")
+				else
+					global.setVar("currentLine", tonumber(numMod))
+					topLine = global.getVar("currentLine")
+				end
+				numMod = "0"
+				screen.redraw()
 			end
-			if inNumber == 10 then
-				numMod = numMod.."0"
-			end
-		end
 
-		-- basic cursor move commands
-		if keyPress == keys.l then
-			if tonumber(numMod) == 0 then
-				numMod = "1"
-			end
-			cursorX = cursorX + tonumber(numMod)
-			numMod = "0"
 		end
-		if keyPress == keys.h then
-			if tonumber(numMod) == 0 then
-				numMod = "1"
-			end
-			cursorX = cursorX - tonumber(numMod)
-			numMod = "0"
-		end
-		if keyPress == keys.j then
-			if tonumber(numMod) == 0 then
-				numMod = "1"
-			end
-			cursorY = cursorY + tonumber(numMod)
-			global.setVar("currentLine", global.getVar("currentLine") + tonumber(numMod))
-			numMod = "0"
-			if cursorY > global.getVar("termY") - 2 then
-				cursorY = global.getVar("termY") - 2
-				topLine = topLine + 1
-			end
-			if cursorY > global.getVar("length") then
-				cursorY = global.getVar("length")
-				global.setVar("currentLine", global.getVar("length"))
-			end
-			if global.getVar("currentLine") > global.getVar("length") then
-				global.setVar("currentLine", global.getVar("length"))
-				topLine = global.getVar("length")
-			end
-			screen.redraw()
-		end
-		if keyPress == keys.k then
-			if tonumber(numMod) == 0 then
-				numMod = "1"
-			end
-			cursorY = cursorY - tonumber(numMod)
-			global.setVar("currentLine", global.getVar("currentLine") - tonumber(numMod))
-			numMod = "0"
-			if cursorY < 1 then
-				cursorY = 1
-				topLine = topLine - 1
-			end
-			if global.getVar("currentLine") < 1 then
-				global.setVar("currentLine", 1)
-				topLine = 1
-			end
-			screen.redraw()
-		end
+		if event == "char" then
 
-		if keyPress == keys.x then
-			if tonumber(numMod) == 0 then
-				numMod = "1"
-			end
-			global.setVar("hasChanged", true)
-			temp = global.getLine(global.getVar("currentLine"))
-			a = string.sub(temp, 1, cursorX - 1)
-			b = string.sub(temp, cursorX + tonumber(numMod), string.len(temp)) 
-			global.setLine(global.getVar("currentLine"), a..b)
-			screen.redraw()
-			numMod = "0"
-		end
+			keyPresses[#keyPresses + 1] = key
 
-		if keyPress == keys.d and prevKey == keys.d then
-			global.setVar("hasChanged", true)
-			if tonumber(numMod) == 0 then
-				numMod = "1"
+			if triggerKeys[key] ~= nil then
+				--parse arguments before the trigger key
 			end
-			for i=1, tonumber(numMod) do
-				global.removeLine(global.getVar("currentLine"))
-			end
-			numMod = "0"
-			screen.redraw()
-		end
 
-		-- currently sets the line jumped to as the top line
-		-- TODO possible bugs
-		-- allows the sceen to scroll further than usual
-		-- when entering a 0 manually, still goes to bottom
-		if keyPress == keys.g and prevKey == keys.rightShift or prevKey == keys.leftShift then
-			if tonumber(numMod) == 0 or tonumber(numMod) > global.getVar("length") then
-				global.setVar("currentLine", global.getVar("length"))
-				topLine = global.getVar("length")
-			else
-				global.setVar("currentLine", tonumber(numMod))
-				topLine = global.getVar("currentLine")
-			end
-			numMod = "0"
-			screen.redraw()
-		end
 
-		if keyPress == keys.i then
-			if prevKey == keys.leftShift or prevKey == keys.rightShift then
-				cursorX = insertMode(global.getVar("currentLine"), cursorX, "beginning")
-			else
+			if key == "l" then
+				-- number mods,
+				-- TODO
+				-- This should be better implemented
+				local mod = tonumber(keyPresses[1])
+				if mod ~= nil then
+					cursorX = cursorX + mod
+				end
+			end
+			if key == "h" then
+				cursorX = cursorX - 1
+			end
+			if key == "j" then
+				cursorY = cursorY + 1
+				global.setVar("currentLine", global.getVar("currentLine") + 1)
+				if cursorY > global.getVar("termY") - 2 then
+					cursorY = global.getVar("termY") - 2
+					global.setVar("topLine", global.getVar("topLine") + 1)
+				end
+				if cursorY > global.getVar("length") then
+					cursorY = global.getVar("length")
+					global.setVar("currentLine", global.getVar("length"))
+				end
+				if global.getVar("currentLine") > global.getVar("length") then
+					global.setVar("currentLine", global.getVar("length"))
+					global.setVar( global.getVar("length") )
+				end
+				screen.redraw()
+			end
+			if key == "k" then
+				cursorY = cursorY - 1
+				global.setVar("currentLine", global.getVar("currentLine") - 1)
+				if cursorY < 1 then
+					cursorY = 1
+					global.setVar("topLine", global.getVar("topLine") - 1)
+				end
+				if global.getVar("currentLine") < 1 then
+					global.setVar("currentLine", 1)
+					global.setVar("topLine", 1)
+				end
+				screen.redraw()
+			end
+
+			if key == "x" then
+				global.setVar("hasChanged", true)
+				temp = global.getLine(global.getVar("currentLine"))
+				a = string.sub(temp, 1, cursorX - 1)
+				b = string.sub(temp, cursorX + 1, string.len(temp)) 
+				global.setLine(global.getVar("currentLine"), a..b)
+				screen.redraw()
+			end
+
+			if key == "i" then
 				cursorX = insertMode(global.getVar("currentLine"), cursorX, "here")
 			end
-		end
-		if keyPress == keys.a then
-			if prevKey == keys.leftShift or prevKey == keys.rightShift then
-				cursorX = insertMode(global.getVar("currentLine"), cursorX, "end")
-			else
+			if key == "I" then
+				cursorX = insertMode(global.getVar("currentLine"), cursorX, "beginning")
+			end
+			if key == "a" then
 				cursorX = insertMode(global.getVar("currentLine"), cursorX, "after")
 			end
-		end
+			if key == "A" then
+				cursorX = insertMode(global.getVar("currentLine"), cursorX, "end")
+			end
 
-		-- Check if alt-gr is down and colon is pressed
-		-- special case for my computer
-		if prevKey == 184 then
-			if keyPress == 52 then
-				--print("colon pressed")
+			if key == "d" then
+				if keyPresses.d ~= nil then
+					global.setVar("hasChanged", true)
+					global.removeLine(global.getVar("currentLine"))
+
+					screen.redraw()
+				end
+				keyPresses[#keyPresses + 1] = "d"
+				-- temporarly make 'd' a triggr key
+				triggerKeys.d = "d"
+			end
+
+			-- if the keypress triggered something
+			-- then reset the pressed keys
+			if triggerKeys[key] ~= nil then
+				keyPresses = {}
+			end
+
+			if key == ":" then
 				local command = commandMode()
 				if command == "q" then
 					if global.getVar("hasChanged") then
@@ -292,9 +284,8 @@ function normalMode()
 					running = false
 				end
 			end
-		end
 
-		term.setCursorPos(cursorX, cursorY)
-		prevKey = keyPress
+			term.setCursorPos(cursorX, cursorY)
+		end
 	end
 end
