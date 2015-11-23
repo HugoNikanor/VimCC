@@ -1,9 +1,18 @@
+
+local apiPath = "/utils/vimfiles/"
+local apis = {
+	"global"
+}
+for i=1, #apis do
+	os.loadAPI(apiPath..apis[i])
+end
+
 function redrawScreen()
 	term.setCursorPos(1, 1)
 	term.clear()
-	for i=topLine, topLine+termY-2 do
-		if lines[i] ~= nil then
-			print(lines[i])
+	for i=topLine, topLine+global.getVar("termY")-2 do
+		if global.getLine(i) ~= nil then
+			print(global.getLine(i))
 		else
 			print("~")
 		end
@@ -11,19 +20,19 @@ function redrawScreen()
 end
 
 function writeFile()
-	local file = fs.open(fileName, "w")
-	for i=1, length do
-		file.writeLine(lines[i])
+	local file = fs.open(global.getVar("fileName"), "w")
+	for i=1, global.getVar("length") do
+		file.writeLine(global.getLine(i))
 	end
 	file.close()
 
-	hasChanged = false
+	global.setVar("hasChanged", false)
 end
 
 function commandMode() 
 	local command = ""
 	local pos = 1
-	term.setCursorPos(1, termY)
+	term.setCursorPos(1, global.getVar("termY"))
 	term.clearLine()
 	term.write(":")
 
@@ -46,7 +55,7 @@ function commandMode()
 				running = false
 			end
 			if key == keys.backspace then
-				term.setCursorPos(pos, termY)
+				term.setCursorPos(pos, global.getVar("termY"))
 
 				command = string.sub(command, 1, string.len(command) - 1)
 				pos = pos - 1
@@ -59,7 +68,7 @@ function commandMode()
 			--command[pos] = key
 			command = command..key
 			pos = pos + 1
-			term.setCursorPos(pos, termY)
+			term.setCursorPos(pos, global.getVar("termY"))
 			term.write(key)
 		end
 		event, key = os.pullEvent()
@@ -76,20 +85,20 @@ function insertMode(line, column, pos)
 
 	-- Also have 'begining' and 'end'
 	if pos == "here" then
-		strBefore = string.sub(lines[line], 1, column - 1)
-		strAfter = string.sub(lines[line], column)
+		strBefore = string.sub(global.getLine(line), 1, column - 1)
+		strAfter = string.sub(global.getLine(line), column)
 	elseif pos == "after" then
-		strBefore = string.sub(lines[line], 1, column)
-		strAfter = string.sub(lines[line], column + 1)
+		strBefore = string.sub(global.getLine(line), 1, column)
+		strAfter = string.sub(global.getLine(line), column + 1)
 		column = column + 1
 	elseif pos == "beginning" then
 		strBefore = ""
-		strAfter = lines[line]
+		strAfter = global.getLine(line)
 		column = 1
 	elseif pos == "end" then
-		strBefore = lines[line]
+		strBefore = global.getLine(line)
 		strAfter = ""
-		column = string.len(lines[line]) + 1
+		column = string.len(global.getLine(line)) + 1
 	end
 
 	term.setCursorPos( column, line )
@@ -109,18 +118,18 @@ function insertMode(line, column, pos)
 				term.clearLine()
 				term.setCursorPos(1, line)
 				term.write(strBefore..strAfter)
-				lines[line] = strBefore..strAfter
+				global.setLine(line, strBefore..strAfter)
 
 				term.setCursorPos(column, line)
 			end
 			-- insert linebreak
 			if key == keys.enter then
-				hasChanged = true
+				global.setVar("hasChanged", true)
 
-				lines[line] = strBefore
+				global.setLine(line, strBefore)
 				table.insert(lines, line + 1, strAfter)
 				strAfter = ""
-				length = length + 1
+				global.setVar("length", global.getVar("length") + 1)
 
 				redrawScreen()
 
@@ -131,13 +140,13 @@ function insertMode(line, column, pos)
 		end
 		-- text entry
 		if event == "char" then
-			hasChanged = true
+			global.setVar("hasChanged", true)
 
 			strBefore = strBefore..key
 			term.clearLine()
-			term.setCursorPos(1, currentLine-topLine+1)
+			term.setCursorPos(1, global.getVar("currentLine")-topLine+1)
 			term.write(strBefore..strAfter)
-			lines[line] = strBefore..strAfter
+			global.setLine(line, strBefore..strAfter)
 
 			column = column + 1
 			term.setCursorPos(column, line)
@@ -196,19 +205,19 @@ function normalMode()
 				numMod = "1"
 			end
 			cursorY = cursorY + tonumber(numMod)
-			currentLine = currentLine + tonumber(numMod)
+			global.setVar("currentLine", global.getVar("currentLine") + tonumber(numMod))
 			numMod = "0"
-			if cursorY > termY - 2 then
-				cursorY = termY - 2
+			if cursorY > global.getVar("termY") - 2 then
+				cursorY = global.getVar("termY") - 2
 				topLine = topLine + 1
 			end
-			if cursorY > length then
-				cursorY = length
-				currentLine = length
+			if cursorY > global.getVar("length") then
+				cursorY = global.getVar("length")
+				global.setVar("currentLine", global.getVar("length"))
 			end
-			if currentLine > length then
-				currentLine = length
-				topLine = length
+			if global.getVar("currentLine") > global.getVar("length") then
+				global.setVar("currentLine", global.getVar("length"))
+				topLine = global.getVar("length")
 			end
 			redrawScreen()
 		end
@@ -217,14 +226,14 @@ function normalMode()
 				numMod = "1"
 			end
 			cursorY = cursorY - tonumber(numMod)
-			currentLine = currentLine - tonumber(numMod)
+			global.setVar("currentLine", global.getVar("currentLine") - tonumber(numMod))
 			numMod = "0"
 			if cursorY < 1 then
 				cursorY = 1
 				topLine = topLine - 1
 			end
-			if currentLine < 1 then
-				currentLine = 1
+			if global.getVar("currentLine") < 1 then
+				global.setVar("currentLine", 1)
 				topLine = 1
 			end
 			redrawScreen()
@@ -234,22 +243,22 @@ function normalMode()
 			if tonumber(numMod) == 0 then
 				numMod = "1"
 			end
-			hasChanged = true;
-			temp = lines[currentLine]
+			global.setVar("hasChanged", true)
+			temp = lines[global.getVar("currentLine")]
 			a = string.sub(temp, 1, cursorX - 1)
 			b = string.sub(temp, cursorX + tonumber(numMod), string.len(temp)) 
-			lines[currentLine] = a..b
+			lines[global.getVar("currentLine")] = a..b
 			redrawScreen()
 			numMod = "0"
 		end
 
 		if keyPress == keys.d and prevKey == keys.d then
-			hasChanged = true;
+			global.setVar("hasChanged", true)
 			if tonumber(numMod) == 0 then
 				numMod = "1"
 			end
 			for i=1, tonumber(numMod) do
-				table.remove(lines, currentLine)
+				table.remove(lines, global.getVar("currentLine"))
 			end
 			numMod = "0"
 			redrawScreen()
@@ -260,12 +269,12 @@ function normalMode()
 		-- allows the sceen to scroll further than usual
 		-- when entering a 0 manually, still goes to bottom
 		if keyPress == keys.g and prevKey == keys.rightShift or prevKey == keys.leftShift then
-			if tonumber(numMod) == 0 or tonumber(numMod) > length then
-				currentLine = length
-				topLine = length
+			if tonumber(numMod) == 0 or tonumber(numMod) > global.getVar("length") then
+				global.setVar("currentLine", global.getVar("length"))
+				topLine = global.getVar("length")
 			else
-				currentLine = tonumber(numMod)
-				topLine = currentLine
+				global.setVar("currentLine", tonumber(numMod))
+				topLine = global.getVar("currentLine")
 			end
 			numMod = "0"
 			redrawScreen()
@@ -273,16 +282,16 @@ function normalMode()
 
 		if keyPress == keys.i then
 			if prevKey == keys.leftShift or prevKey == keys.rightShift then
-				cursorX = insertMode(currentLine, cursorX, "beginning")
+				cursorX = insertMode(global.getVar("currentLine"), cursorX, "beginning")
 			else
-				cursorX = insertMode(currentLine, cursorX, "here")
+				cursorX = insertMode(global.getVar("currentLine"), cursorX, "here")
 			end
 		end
 		if keyPress == keys.a then
 			if prevKey == keys.leftShift or prevKey == keys.rightShift then
-				cursorX = insertMode(currentLine, cursorX, "end")
+				cursorX = insertMode(global.getVar("currentLine"), cursorX, "end")
 			else
-				cursorX = insertMode(currentLine, cursorX, "after")
+				cursorX = insertMode(global.getVar("currentLine"), cursorX, "after")
 			end
 		end
 
@@ -293,17 +302,17 @@ function normalMode()
 				--print("colon pressed")
 				local command = commandMode()
 				if command == "q" then
-					if hasChanged then
-						term.setCursorPos(1, termY)
+					if global.getVar("hasChanged") then
+						term.setCursorPos(1, global.getVar("termY"))
 						term.setBackgroundColour( colors.red )
 						term.write("No write since last change, ! to override")
 						term.setBackgroundColour( colors.black )
 					else
-						running = false;
+						running = false
 					end
 				end
 				if command == "q!" then
-					running = false;
+					running = false
 				end
 				if command == "w" then
 					writeFile()
@@ -322,22 +331,31 @@ end
 
 -- start main
 local args = {...}
-termX, termY = term.getSize()
 
-hasChanged = false
+local termX, termY = term.getSize()
+global.setVar("termX", termX)
+global.setVar("termY", termY)
 
-fileName = args[1]
+
+global.setVar("hasChanged", false)
+
+local fileName = args[1]
+global.setVar("fileName", fileName)
 --TODO create new file if file doesn't exist
 --TODO other safeguards
-local file = fs.open(fileName, "r")
+local file = fs.open(global.getVar("fileName"), "r")
 
 -- what absolute line are selected
-currentLine = 1
-currentColumn = 1
+--currentLine = 1
+--currentColumn = 1
+--topLine = 1
 
-topLine = 1
+global.setVar("currentLine", 1)
+global.setVar("currentColumn", 1)
+global.setVar("topLine", 1)
 
-lines = {}
+
+local lines = {}
 local counter = 0
 local tempLine = file.readLine()
 while tempLine ~= nil do
@@ -345,8 +363,12 @@ while tempLine ~= nil do
 	lines[counter] = tempLine
 	tempLine = file.readLine()
 end
-length = counter
 file.close()
+
+global.setLines(lines)
+global.setVar("length", counter)
+
+
 
 redrawScreen()
 

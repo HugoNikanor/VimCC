@@ -1,0 +1,49 @@
+local globals = {
+	termX = 0,
+	termY = 0,
+	hasChanged = false,
+	fileName = "",
+	currentLine = 1,
+	currentColumn = 1,
+	topLine = 1,
+	length = 1
+}
+
+function getVar(key)
+	local temp = globals[key]
+	if temp == nil then
+		error("no such key: " .. key)
+	end
+	return globals[key]
+end
+
+function setVar(key, value)
+	local temp = globals[key]
+	if temp == nil then
+		error("no such key: " .. key)
+	end
+	if value == nil then
+		error( "you forgot the value: " .. key )
+	end
+	globals[key] = value
+end
+
+------------------------------
+
+local lines = {}
+
+function getLines()
+	return lines
+end
+
+function getLine(lineNo)
+	return lines[lineNo]
+end
+
+function setLine(lineNo, text)
+	lines[lineNo] = text
+end
+
+function setLines(inLines)
+	lines = inLines
+end
