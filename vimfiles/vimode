@@ -141,6 +141,8 @@ function normalMode()
 	local triggerKeys = {
 		x = "x",
 		G = "G",
+		d = "d",
+
 		j = "j",
 		k = "k",
 		h = "h",
@@ -184,6 +186,7 @@ function normalMode()
 				outCommand, numberMod, otherMod = command.parseViCommand( keyPresses )
 				triggered = true
 			end
+
 
 			if key == "l" then
 				cursorX = cursorX + numberMod
@@ -254,19 +257,22 @@ function normalMode()
 			end
 
 			if key == "d" then
-				screen.debug(numberMod)
-				--TODO allow the first 'd' to be anywhere in the keyPresses table
 				if readyForNext and keyPresses[#keyPresses] == "d" then
 					global.setVar("hasChanged", true)
-					for i=0, numberMod do
-						global.removeLine(global.getVar("currentLine") + i)
+					for i=0, numberMod - 1 do
+						global.removeLine(global.getVar("currentLine"))
 					end
 
 					screen.redraw()
 					triggered = true
+				else
+					triggered = false
+					readyForNext = true
 				end
-				readyForNext = true
 			end
+
+
+
 
 
 			if key == ":" then
@@ -298,6 +304,8 @@ function normalMode()
 			-- clears the list of pressed keys if the last button press
 			-- did something
 			if triggered then
+				-- used by 'd'
+				readyForNext = false
 				keyPresses = {}
 			end
 

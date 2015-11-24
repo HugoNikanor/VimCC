@@ -1,7 +1,7 @@
 
 function parseViCommand( presses ) 
 	local command = ""
-	local numberMod = 1
+	local numberMod = tonumber(1)
 	local otherMod = {}
 
 	local numbers = ""
