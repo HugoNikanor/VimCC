@@ -138,7 +138,6 @@ function normalMode()
 	-- Keys that do something when pressed
 	--
 	-- Used to differentiate from those keys that act like modifiers
-	--[[
 	local triggerKeys = {
 		x = "x",
 		G = "G",
@@ -147,18 +146,20 @@ function normalMode()
 		h = "h",
 		l = "l"
 	}
-	]]
 	local triggered = false
 	local keyPresses = {}
+	-- used for keys that trigger the secound time they are pressed
+	local readyForNext = false
 
 	while running do
-		local event, key, beingHeld = os.pullEventRaw()
+		local event, key = os.pullEvent()
 
 		if event == "key" then
 			-- currently sets the line jumped to as the top line
 			-- TODO possible bugs
 			-- allows the sceen to scroll further than usual
 			-- when entering a 0 manually, still goes to bottom
+			--[[
 			if key == keys.g and prevKey == keys.rightShift or prevKey == keys.leftShift then
 				if tonumber(numMod) == 0 or tonumber(numMod) > global.getVar("length") then
 					global.setVar("currentLine", global.getVar("length"))
@@ -170,6 +171,7 @@ function normalMode()
 				numMod = "0"
 				screen.redraw()
 			end
+			]]
 
 		end
 		if event == "char" then
@@ -177,25 +179,18 @@ function normalMode()
 			keyPresses[#keyPresses + 1] = key
 			triggered = false
 
-			--[[
+			local outCommand, numberMod, otherMod
 			if triggerKeys[key] ~= nil then
-				--parse arguments before the trigger key
+				outCommand, numberMod, otherMod = command.parseViCommand( keyPresses )
+				triggered = true
 			end
-			]]
-
 
 			if key == "l" then
-				-- number mods,
-				-- TODO
-				-- This should be better implemented
-				local mod = tonumber(keyPresses[1])
-				if mod ~= nil then
-					cursorX = cursorX + mod
-				end
+				cursorX = cursorX + numberMod
 				triggered = true
 			end
 			if key == "h" then
-				cursorX = cursorX - 1
+				cursorX = cursorX - numberMod
 				triggered = true
 			end
 			if key == "j" then
@@ -235,7 +230,7 @@ function normalMode()
 				global.setVar("hasChanged", true)
 				temp = global.getLine(global.getVar("currentLine"))
 				a = string.sub(temp, 1, cursorX - 1)
-				b = string.sub(temp, cursorX + 1, string.len(temp)) 
+				b = string.sub(temp, cursorX + numberMod, string.len(temp)) 
 				global.setLine(global.getVar("currentLine"), a..b)
 				screen.redraw()
 				triggered = true
@@ -259,15 +254,18 @@ function normalMode()
 			end
 
 			if key == "d" then
+				screen.debug(numberMod)
 				--TODO allow the first 'd' to be anywhere in the keyPresses table
-				if keyPresses[1] == "d" and keyPresses[#keyPresses] == "d" then
+				if readyForNext and keyPresses[#keyPresses] == "d" then
 					global.setVar("hasChanged", true)
-					global.removeLine(global.getVar("currentLine"))
+					for i=0, numberMod do
+						global.removeLine(global.getVar("currentLine") + i)
+					end
 
 					screen.redraw()
 					triggered = true
 				end
-				keyPresses[#keyPresses + 1] = "d"
+				readyForNext = true
 			end
 
 

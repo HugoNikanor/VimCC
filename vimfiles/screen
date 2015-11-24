@@ -14,7 +14,11 @@ end
 
 function debug(message)
 	term.setCursorPos(10, 10)
-	print(message)
+	if message==nil then
+		print("nil")
+	else
+		print(message)
+	end
 	os.pullEvent("key")
 end
 

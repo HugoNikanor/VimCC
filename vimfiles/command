@@ -1,0 +1,28 @@
+
+function parseViCommand( presses ) 
+	local command = ""
+	local numberMod = 1
+	local otherMod = {}
+
+	local numbers = ""
+
+	for i=1, #presses do
+		local temp = tonumber( presses[i] )
+		if temp ~= nil then
+			numbers = numbers .. temp
+		end
+	end
+	if numbers ~= "" then
+		numberMod = tonumber(numbers)
+	end
+
+
+	return command, numberMod, otherMod
+
+end
+
+function parseExCommand( text ) 
+end
+
+function runExCommand( command )
+end

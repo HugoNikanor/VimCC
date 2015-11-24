@@ -2,12 +2,16 @@
 local apiPath = "/utils/vimfiles/"
 local apis = {
 	"global",
-	"vimode",
+	"command",
 	"screen",
+	"vimode",
 	"file",
 }
 for i=1, #apis do
-	os.loadAPI(apiPath..apis[i])
+	local test = os.loadAPI(apiPath..apis[i])
+	if not test then
+		error(apis[i])
+	end
 end
 
 
