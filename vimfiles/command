@@ -11,6 +11,7 @@ local function parseViCommand( presses )
 			numbers = numbers .. temp
 		end
 	end
+
 	if numbers ~= "" then
 		numberMod = tonumber(numbers)
 	end
@@ -28,19 +29,18 @@ function runViCommand( command, cursorX, cursorY )
 
 	local triggered = true
 
-	-- make sure that those who trigger with the 
-	-- next to last button is resolved first
+	if command[#command] == "f" or 
+	   command[#command] == "t" then
+	   local event, keyToFind = os.pullEvent("char")
 
-	if command[#command - 1] == "f" or 
-	   command[#command - 1] == "t" then
 	   for i=1, numberMod do
 			local tempX = string.find(global.getLine(
-				global.getVar("currentLine")), command[#command], cursorX + 1)
+				global.getVar("currentLine")), keyToFind, cursorX + 1)
 			if tempX ~= nil then
 				cursorX = tempX
 			end
 		end
-		if command[#command - 1] == "t" then
+		if command[#command] == "t" then
 			cursorX = cursorX - 1
 		end
 	

@@ -186,56 +186,9 @@ end
 
 function normalMode()
 	term.setCursorBlink(true)
-	-- what line vissible on the screen is selected
+
 	local cursorX, cursorY = 1, 1
 	term.setCursorPos(cursorX, cursorY)
-
-	-- keys that trigger something when they are pressed
-	local hardTriggers = {
-		x = "x",
-		G = "G",
-		d = "d",
-
-		-- single movement
-		j = "j",
-		k = "k",
-		h = "h",
-		l = "l",
-
-		-- large movement
-		w = "w",
-		W = "W",
-		b = "b",
-		B = "B",
-		e = "e",
-		E = "E",
-
-		-- insert mode
-		i = "i",
-		I = "I",
-		a = "a",
-		A = "A",
-		o = "o",
-		O = "O",
-
-		Z = "Z",
-		Q = "Q",
-
-
-		[":"] = ":",
-	}
-	
-	-- keys that will trigger when a key is pressed after them
-	local softTriggers = {
-		f = "f",
-		F = "F",
-		t = "t",
-		T = "T",
-
-		["@"] = "@",
-
-		g = "g",
-	}
 
 	local keyPresses = {}
 
@@ -243,46 +196,18 @@ function normalMode()
 	while global.getVar("running") do
 		local event, key = os.pullEvent()
 
-		if event == "key" then
-			-- currently sets the line jumped to as the top line
-			-- TODO possible bugs
-			-- allows the sceen to scroll further than usual
-			-- when entering a 0 manually, still goes to bottom
-			--[[
-			if key == keys.g and prevKey == keys.rightShift or prevKey == keys.leftShift then
-				if tonumber(numMod) == 0 or tonumber(numMod) > global.getVar("length") then
-					global.setVar("currentLine", global.getVar("length"))
-					topLine = global.getVar("length")
-				else
-					global.setVar("currentLine", tonumber(numMod))
-					topLine = global.getVar("currentLine")
-				end
-				numMod = "0"
-				screen.redraw()
-			end
-			]]
-
-		end
 		if event == "char" then
 
 			keyPresses[#keyPresses + 1] = key
 
 			local triggered = false
-
-			if hardTriggers[key] ~= nil then
-				triggered, cursorX, cursorY = command.runViCommand( keyPresses, cursorX, cursorY )
-			end
-			if softTriggers[key] ~= nil then
-				local levent, lkey = os.pullEvent("char")
-				keyPresses[#keyPresses + 1] = lkey
-				triggered, cursorX, cursorY = command.runViCommand( keyPresses, cursorX, cursorY )
-			end
+			triggered, cursorX, cursorY =
+				command.runViCommand( keyPresses, cursorX, cursorY )
 
 			if triggered then
 				keyPresses = {}
+				term.setCursorPos(cursorX, cursorY)
 			end
-
-			term.setCursorPos(cursorX, cursorY)
 		end
 	end
 end
