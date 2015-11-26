@@ -26,150 +26,156 @@ end
 function runViCommand( command, cursorX, cursorY )
 	local numberMod, otherMod = parseViCommand( command )
 
-		local triggered = true
+	local triggered = true
+
+	-- make sure that those who trigger with the 
+	-- next to last button is resolved first
+
+	if command[#command - 1] == "f" or 
+	   command[#command - 1] == "t" then
+	   for i=1, numberMod do
+			local tempX = string.find(global.getLine(
+				global.getVar("currentLine")), command[#command], cursorX + 1)
+			if tempX ~= nil then
+				cursorX = tempX
+			end
+		end
+		if command[#command - 1] == "t" then
+			cursorX = cursorX - 1
+		end
+	
+	elseif command[#command] == "l" then
+		cursorX = cursorX + numberMod
+	
+	elseif command[#command] == "h" then
+		cursorX = cursorX - numberMod
+	
+	elseif command[#command] == "j" then
+		cursorY = cursorY + 1
+		global.setVar("currentLine", global.getVar("currentLine") + 1)
+		if cursorY > global.getVar("termY") - 2 then
+			cursorY = global.getVar("termY") - 2
+			global.setVar("topLine", global.getVar("topLine") + 1)
+		end
+		if cursorY > global.getLength() then
+			cursorY = global.getLength()
+			global.setVar("currentLine", global.getLength())
+		end
+		if global.getVar("currentLine") > global.getLength() then
+			global.setVar("currentLine", global.getLength())
+			global.setVar( global.getLength() )
+		end
+		screen.redraw()
+	
+	elseif command[#command] == "k" then
+		cursorY = cursorY - 1
+		global.setVar("currentLine", global.getVar("currentLine") - 1)
+		if cursorY < 1 then
+			cursorY = 1
+			global.setVar("topLine", global.getVar("topLine") - 1)
+		end
+		if global.getVar("currentLine") < 1 then
+			global.setVar("currentLine", 1)
+			global.setVar("topLine", 1)
+		end
+		screen.redraw()
+
+	
+	elseif command[#command] == "w" or command[#command] == "W" then
+		-- TODO differentiate between 'w' and "w"
+		--
+		-- This won't work then the line wrap
+		-- TODO change to use "currentColumn"
+		for i=1, numberMod do
+			local tXS, tXE = string.find(global.getLine(global.getVar("currentLine")), "%s", cursorX)
+			if  tXS ~= nil then
+				cursorX = tXS + 1
+			else
+				cursorX = string.len(global.getLine(global.getVar("currentLine")))
+			end
+		end
+	
+	elseif command[#command] == "e" or command[#command] == "E" then
+		for i=1, numberMod do
+			local tXS, tXE = string.find(global.getLine(global.getVar("currentLine")), "%s", cursorX + 2)
+			if  tXS ~= nil then
+				cursorX = tXS - 1
+			else
+				cursorX = string.len(global.getLine(global.getVar("currentLine")))
+			end
+		end
+	
+	elseif command[#command] == "b" or command[#command] == "B" then
+		local tempX
+		local line = global.getLine(global.getVar("currentLine"))
+		local tXS, tXE = string.find( string.reverse(line), "%s", 
+			string.len(line) - cursorX - 1)
+			-- Aga|Thi wor -- 11
+			-- orw ihT|agA
+		if  tXS ~= nil then
+			cursorX = string.len(line) - tXS + 2
+		else
+			cursorX = 1
+		end
 
 
-			if command[#command - 1] == "f" or 
-			   command[#command - 1] == "t" then
-			   for i=1, numberMod do
-					local tempX = string.find(global.getLine(
-						global.getVar("currentLine")), command[#command], cursorX + 1)
-					if tempX ~= nil then
-						cursorX = tempX
-					end
-				end
-				if command[#command - 1] == "t" then
-					cursorX = cursorX - 1
-				end
-			
-			elseif command[#command] == "l" then
-				cursorX = cursorX + numberMod
-			
-			elseif command[#command] == "h" then
-				cursorX = cursorX - numberMod
-			
-			elseif command[#command] == "j" then
-				cursorY = cursorY + 1
-				global.setVar("currentLine", global.getVar("currentLine") + 1)
-				if cursorY > global.getVar("termY") - 2 then
-					cursorY = global.getVar("termY") - 2
-					global.setVar("topLine", global.getVar("topLine") + 1)
-				end
-				if cursorY > global.getLength() then
-					cursorY = global.getLength()
-					global.setVar("currentLine", global.getLength())
-				end
-				if global.getVar("currentLine") > global.getLength() then
-					global.setVar("currentLine", global.getLength())
-					global.setVar( global.getLength() )
-				end
-				screen.redraw()
-			
-			elseif command[#command] == "k" then
-				cursorY = cursorY - 1
-				global.setVar("currentLine", global.getVar("currentLine") - 1)
-				if cursorY < 1 then
-					cursorY = 1
-					global.setVar("topLine", global.getVar("topLine") - 1)
-				end
-				if global.getVar("currentLine") < 1 then
-					global.setVar("currentLine", 1)
-					global.setVar("topLine", 1)
-				end
-				screen.redraw()
 
-			
-			elseif command[#command] == "w" or command[#command] == "W" then
-				-- TODO differentiate between 'w' and "w"
-				--
-				-- This won't work then the line wrap
-				-- TODO change to use "currentColumn"
-				for i=1, numberMod do
-					local tXS, tXE = string.find(global.getLine(global.getVar("currentLine")), "%s", cursorX)
-					if  tXS ~= nil then
-						cursorX = tXS + 1
-					else
-						cursorX = string.len(global.getLine(global.getVar("currentLine")))
-					end
-				end
-			
-			elseif command[#command] == "e" or command[#command] == "E" then
-				for i=1, numberMod do
-					local tXS, tXE = string.find(global.getLine(global.getVar("currentLine")), "%s", cursorX + 2)
-					if  tXS ~= nil then
-						cursorX = tXS - 1
-					else
-						cursorX = string.len(global.getLine(global.getVar("currentLine")))
-					end
-				end
-			
-			elseif command[#command] == "b" or command[#command] == "B" then
-				local tempX
-				local line = global.getLine(global.getVar("currentLine"))
-				local tXS, tXE = string.find( string.reverse(line), "%s", 
-					string.len(line) - cursorX - 1)
-					-- Aga|Thi wor -- 11
-					-- orw ihT|agA
-				if  tXS ~= nil then
-					cursorX = string.len(line) - tXS + 2
-				else
-					cursorX = 1
-				end
+	
+	elseif command[#command] == "x" then
+		global.setVar("hasChanged", true)
+		temp = global.getLine(global.getVar("currentLine"))
+		a = string.sub(temp, 1, cursorX - 1)
+		b = string.sub(temp, cursorX + numberMod, string.len(temp)) 
+		global.setLine(global.getVar("currentLine"), a..b)
+		screen.redraw()
 
+	
+	elseif command[#command] == "i" then
+		cursorX, cursorY = vimode.insertMode(global.getVar("currentLine"), cursorX, "here")
+	
+	elseif command[#command] == "I" then
+		if command[1] == "g" then
+			cursorX, cursorY = vimode.insertMode(global.getVar("currentLine"), cursorX, "0")
+		else
+			cursorX, cursorY = vimode.insertMode(global.getVar("currentLine"), cursorX, "beginning")
+		end
+	
+	elseif command[#command] == "a" then
+		cursorX, cursorY = vimode.insertMode(global.getVar("currentLine"), cursorX, "after")
+	
+	elseif command[#command] == "A" then
+		cursorX, cursorY = vimode.insertMode(global.getVar("currentLine"), cursorX, "end")
 
-
-			
-			elseif command[#command] == "x" then
-				global.setVar("hasChanged", true)
-				temp = global.getLine(global.getVar("currentLine"))
-				a = string.sub(temp, 1, cursorX - 1)
-				b = string.sub(temp, cursorX + numberMod, string.len(temp)) 
-				global.setLine(global.getVar("currentLine"), a..b)
-				screen.redraw()
-
-			
-			elseif command[#command] == "i" then
-				cursorX, cursorY = vimode.insertMode(global.getVar("currentLine"), cursorX, "here")
-			
-			elseif command[#command] == "I" then
-				cursorX, cursorY = vimode.insertMode(global.getVar("currentLine"), cursorX, "beginning")
-			
-			elseif command[#command] == "a" then
-				cursorX, cursorY = vimode.insertMode(global.getVar("currentLine"), cursorX, "after")
-			
-			elseif command[#command] == "A" then
-				cursorX, cursorY = vimode.insertMode(global.getVar("currentLine"), cursorX, "end")
-
-			
-			elseif command[#command] == "d" then
-				-- used to check if this is the secound 'd'
-				local continue = false
-				for i=1, #command - 1 do
-					if command[i] == "d" then
-						continue = true
-					end
-				end
-				if continue then
-					global.setVar("hasChanged", true)
-					for i=0, numberMod - 1 do
-						global.removeLine(global.getVar("currentLine"))
-					end
-
-					screen.redraw()
-				else
-					triggered = false;
-				end
-
-
-			
-			elseif command[#command] == ":" then
-				local command = vimode.commandMode()
-				runExCommand( command )
-
+	
+	elseif command[#command] == "d" then
+		-- used to check if this is the secound 'd'
+		local continue = false
+		for i=1, #command - 1 do
+			if command[i] == "d" then
+				continue = true
+			end
+		end
+		if continue then
+			global.setVar("hasChanged", true)
+			for i=0, numberMod - 1 do
+				global.removeLine(global.getVar("currentLine"))
 			end
 
+			screen.redraw()
+		else
+			triggered = false;
+		end
 
-			return triggered, cursorX, cursorY
+
+	
+	elseif command[#command] == ":" then
+		local command = vimode.commandMode()
+		runExCommand( command )
+
+	end
+
+
+	return triggered, cursorX, cursorY
 end
 
 function parseExCommand( text ) 

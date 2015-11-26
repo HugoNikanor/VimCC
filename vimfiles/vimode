@@ -70,6 +70,11 @@ function insertMode(line, column, pos)
 		strAfter = string.sub(global.getLine(line), column + 1)
 		column = column + 1
 	elseif pos == "beginning" then
+		column = string.len(string.match(global.getLine(line), "%s*"))
+		strBefore = string.sub(global.getLine(line), 1, column)
+		column = column + 1
+		strAfter = string.sub(global.getLine(line), column)
+	elseif pos == "0" then
 		strBefore = ""
 		strAfter = global.getLine(line)
 		column = 1
@@ -87,7 +92,6 @@ function insertMode(line, column, pos)
 
 			-- tab is escape
 			if key == keys.tab then
-				--return column
 				break
 			end
 
@@ -189,9 +193,12 @@ function normalMode()
 		I = "I",
 		a = "a",
 		A = "A",
-		-- These two don't do anything yet
 		o = "o",
 		O = "O",
+
+		Z = "Z",
+		Q = "Q",
+
 
 		[":"] = ":",
 	}
@@ -204,6 +211,8 @@ function normalMode()
 		T = "T",
 
 		["@"] = "@",
+
+		g = "g",
 	}
 
 	local keyPresses = {}
