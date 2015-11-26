@@ -146,6 +146,14 @@ function runViCommand( command, cursorX, cursorY )
 	elseif command[#command] == "A" then
 		cursorX, cursorY = vimode.insertMode(global.getVar("currentLine"), cursorX, "end")
 
+	elseif command[#command] == "o" then
+		cursorX, cursorY = vimode.insertMode(global.getVar("currentLine"), cursorX, "newline")
+
+	elseif command[#command] == "O" then
+		cursorX, cursorY = vimode.insertMode(global.getVar("currentLine"), cursorX, "prevline")
+
+
+
 	
 	elseif command[#command] == "d" then
 		-- used to check if this is the secound 'd'

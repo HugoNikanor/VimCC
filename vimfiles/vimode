@@ -82,6 +82,30 @@ function insertMode(line, column, pos)
 		strBefore = global.getLine(line)
 		strAfter = ""
 		column = string.len(global.getLine(line)) + 1
+	elseif pos == "newline" then
+		global.setVar("hasChanged", true)
+
+		line = line + 1
+
+		global.setVar("currentLine", line)
+		global.insertLine(line, "")
+
+		strBefore = ""
+		strAfter = ""
+
+		column = 1
+		screen.redraw()
+	elseif pos == "prevline" then
+		global.setVar("hasChanged", true)
+
+		global.insertLine(line + 1, global.getLine(line))
+		global.setLine(line, "")
+
+		strBefore = ""
+		strAfter = ""
+
+		column = 1
+		screen.redraw()
 	end
 
 	term.setCursorPos( column, line )
@@ -131,8 +155,6 @@ function insertMode(line, column, pos)
 
 				global.setVar("currentLine", line)
 
-				-- Maybe replace this with something thaw only redraws
-				-- the wanted lines
 				screen.redraw()
 				term.setCursorPos(column, line)
 
