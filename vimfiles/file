@@ -1,7 +1,7 @@
 
 function write()
 	local file = fs.open(global.getVar("fileName"), "w")
-	for i=1, global.getVar("length") do
+	for i=1, global.getLength() do
 		file.writeLine(global.getLine(i))
 	end
 	file.close()
@@ -18,14 +18,12 @@ function read(path)
 	--TODO other safeguards
 	local file = fs.open(global.getVar("fileName"), "r")
 	local lines = {}
-	local counter = 0
 	local tempLine = file.readLine()
+
 	while tempLine ~= nil do
-		counter = counter + 1
-		lines[counter] = tempLine
+		lines[#lines + 1] = tempLine
 		tempLine = file.readLine()
 	end
-	global.setVar("length", counter)
 	file.close()
 	return lines
 end

@@ -6,7 +6,7 @@ local globals = {
 	currentLine = 1,
 	currentColumn = 1,
 	topLine = 1,
-	length = 1,
+	running = true,
 }
 
 function getVar(key)
@@ -31,6 +31,7 @@ end
 ------------------------------
 
 local lines = {}
+local length = 1
 
 function getLines()
 	return lines
@@ -46,13 +47,19 @@ end
 
 function setLines(inLines)
 	lines = inLines
+	length = #lines
 end
 
 function removeLine(lineNo)
 	table.remove(lines, lineNo)
-	setVar("length", getVar("length") - 1)
+	length = length - 1
 end
 
 function insertLine( pos, text )
 	table.insert(lines, pos, text)
+	length = length + 1
+end
+
+function getLength()
+	return length
 end

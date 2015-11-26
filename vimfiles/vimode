@@ -19,11 +19,13 @@ function commandMode()
 				running = false
 				return command
 			end
+
 			-- tab is escape
 			if key == keys.tab then
 				term.clearLine()
 				running = false
 			end
+
 			if key == keys.backspace then
 				term.setCursorPos(pos, global.getVar("termY"))
 
@@ -34,6 +36,7 @@ function commandMode()
 				end
 			end
 		end
+
 		if event == "char" then
 			--command[pos] = key
 			command = command..key
@@ -45,8 +48,13 @@ function commandMode()
 	end
 end
 
--- @returns
--- cursorX, the cursor pos after edits
+-- line: what line number
+-- column: column number
+-- pos: where should insert mode be entered in realtion to the cursor
+-- 		here
+-- 		beginning
+-- 		after
+-- 		end
 function insertMode(line, column, pos)
 	os.sleep(0.1)
 
@@ -76,10 +84,13 @@ function insertMode(line, column, pos)
 	local event, key = os.pullEvent()
 	while true do
 		if event == "key" then
+
 			-- tab is escape
 			if key == keys.tab then
-				return column
+				--return column
+				break
 			end
+
 			-- You currently can backspace past the screen
 			if key == keys.backspace then
 				strBefore = string.sub(strBefore, 1, string.len(strBefore) - 1)
@@ -92,22 +103,38 @@ function insertMode(line, column, pos)
 
 				term.setCursorPos(column, line)
 			end
-			-- insert linebreak
+
+			if key == keys.delete then
+				strAfter = string.sub(strAfter, 2)
+
+				term.clearLine()
+				term.setCursorPos(1, line)
+				term.write(strBefore..strAfter)
+				global.setLine(line, strBefore..strAfter)
+
+				term.setCursorPos(column, line)
+			end
+
 			if key == keys.enter then
 				global.setVar("hasChanged", true)
 
 				global.setLine(line, strBefore)
-				global.insertLine(line + 1, strAfter)
-				strAfter = ""
-				global.setVar("length", global.getVar("length") + 1)
 
-				screen.redraw()
-
+				line = line + 1
 				column = 1
+				global.insertLine(line, strAfter)
+				strBefore = ""
+
+				global.setVar("currentLine", line)
+
+				-- Maybe replace this with something thaw only redraws
+				-- the wanted lines
+				screen.redraw()
 				term.setCursorPos(column, line)
 
 			end
 		end
+
 		-- text entry
 		if event == "char" then
 			global.setVar("hasChanged", true)
@@ -121,8 +148,12 @@ function insertMode(line, column, pos)
 			column = column + 1
 			term.setCursorPos(column, line)
 		end
+
+		-- pull next event
 		event, key = os.pullEvent()
 	end
+
+	return column, line
 
 
 end
@@ -133,34 +164,52 @@ function normalMode()
 	local cursorX, cursorY = 1, 1
 	term.setCursorPos(cursorX, cursorY)
 
-	local running = true
-
-	-- Keys that do something when pressed
-	--
-	-- Used to differentiate from those keys that act like modifiers
-	local triggerKeys = {
+	-- keys that trigger something when they are pressed
+	local hardTriggers = {
 		x = "x",
 		G = "G",
 		d = "d",
 
+		-- single movement
 		j = "j",
 		k = "k",
 		h = "h",
 		l = "l",
 
+		-- large movement
 		w = "w",
 		W = "W",
 		b = "b",
 		B = "B",
 		e = "e",
 		E = "E",
-	}
-	local triggered = false
-	local keyPresses = {}
-	-- used for keys that trigger the secound time they are pressed
-	local readyForNext = false
 
-	while running do
+		-- insert mode
+		i = "i",
+		I = "I",
+		a = "a",
+		A = "A",
+		-- These two don't do anything yet
+		o = "o",
+		O = "O",
+
+		[":"] = ":",
+	}
+	
+	-- keys that will trigger when a key is pressed after them
+	local softTriggers = {
+		f = "f",
+		F = "F",
+		t = "t",
+		T = "T",
+
+		["@"] = "@",
+	}
+
+	local keyPresses = {}
+
+	global.setVar("running", true)
+	while global.getVar("running") do
 		local event, key = os.pullEvent()
 
 		if event == "key" then
@@ -186,168 +235,19 @@ function normalMode()
 		if event == "char" then
 
 			keyPresses[#keyPresses + 1] = key
-			triggered = false
 
-			local outCommand, numberMod, otherMod
-			if triggerKeys[key] ~= nil then
-				outCommand, numberMod, otherMod = command.parseViCommand( keyPresses )
-				triggered = true
+			local triggered = false
+
+			if hardTriggers[key] ~= nil then
+				triggered, cursorX, cursorY = command.runViCommand( keyPresses, cursorX, cursorY )
+			end
+			if softTriggers[key] ~= nil then
+				local levent, lkey = os.pullEvent("char")
+				keyPresses[#keyPresses + 1] = lkey
+				triggered, cursorX, cursorY = command.runViCommand( keyPresses, cursorX, cursorY )
 			end
 
-
-			if key == "l" then
-				cursorX = cursorX + numberMod
-				triggered = true
-			end
-			if key == "h" then
-				cursorX = cursorX - numberMod
-				triggered = true
-			end
-			if key == "j" then
-				cursorY = cursorY + 1
-				global.setVar("currentLine", global.getVar("currentLine") + 1)
-				if cursorY > global.getVar("termY") - 2 then
-					cursorY = global.getVar("termY") - 2
-					global.setVar("topLine", global.getVar("topLine") + 1)
-				end
-				if cursorY > global.getVar("length") then
-					cursorY = global.getVar("length")
-					global.setVar("currentLine", global.getVar("length"))
-				end
-				if global.getVar("currentLine") > global.getVar("length") then
-					global.setVar("currentLine", global.getVar("length"))
-					global.setVar( global.getVar("length") )
-				end
-				screen.redraw()
-				triggered = true
-			end
-			if key == "k" then
-				cursorY = cursorY - 1
-				global.setVar("currentLine", global.getVar("currentLine") - 1)
-				if cursorY < 1 then
-					cursorY = 1
-					global.setVar("topLine", global.getVar("topLine") - 1)
-				end
-				if global.getVar("currentLine") < 1 then
-					global.setVar("currentLine", 1)
-					global.setVar("topLine", 1)
-				end
-				screen.redraw()
-				triggered = true
-			end
-
-			-- TODO differentiate between 'w' and "w"
-			if key == "w" or key == "W" then
-				-- This won't work then the line wrap
-				-- TODO change to use "currentColumn"
-				local tXS, tXE = string.find(global.getLine(global.getVar("currentLine")), " ", cursorX)
-				if  tXS ~= nil then
-					cursorX = tXS + 1
-				else
-					cursorX = string.len(global.getLine(global.getVar("currentLine")))
-				end
-			end
-			if key == "e" or key == "E" then
-				local tXS, tXE = string.find(global.getLine(global.getVar("currentLine")), " ", cursorX + 2)
-				if  tXS ~= nil then
-					cursorX = tXS - 1
-				else
-					cursorX = string.len(global.getLine(global.getVar("currentLine")))
-				end
-			end
-			if key == "b" or key == "B" then
-				local tempX
-				local line = global.getLine(global.getVar("currentLine"))
-				local tXS, tXE = string.find( string.reverse(line), " ", 
-					string.len(line) - cursorX - 1)
-					-- Aga|Thi wor -- 11
-					-- orw ihT|agA
-				if  tXS ~= nil then
-					cursorX = string.len(line) - tXS + 2
-				else
-					cursorX = 1
-				end
-
-			end
-
-
-			if key == "x" then
-				global.setVar("hasChanged", true)
-				temp = global.getLine(global.getVar("currentLine"))
-				a = string.sub(temp, 1, cursorX - 1)
-				b = string.sub(temp, cursorX + numberMod, string.len(temp)) 
-				global.setLine(global.getVar("currentLine"), a..b)
-				screen.redraw()
-				triggered = true
-			end
-
-			if key == "i" then
-				cursorX = insertMode(global.getVar("currentLine"), cursorX, "here")
-				triggered = true
-			end
-			if key == "I" then
-				cursorX = insertMode(global.getVar("currentLine"), cursorX, "beginning")
-				triggered = true
-			end
-			if key == "a" then
-				cursorX = insertMode(global.getVar("currentLine"), cursorX, "after")
-				triggered = true
-			end
-			if key == "A" then
-				cursorX = insertMode(global.getVar("currentLine"), cursorX, "end")
-				triggered = true
-			end
-
-			if key == "d" then
-				if readyForNext and keyPresses[#keyPresses] == "d" then
-					global.setVar("hasChanged", true)
-					for i=0, numberMod - 1 do
-						global.removeLine(global.getVar("currentLine"))
-					end
-
-					screen.redraw()
-					triggered = true
-				else
-					triggered = false
-					readyForNext = true
-				end
-			end
-
-
-
-
-
-			if key == ":" then
-				local command = commandMode()
-				if command == "q" then
-					if global.getVar("hasChanged") then
-						term.setCursorPos(1, global.getVar("termY"))
-						term.setBackgroundColour( colors.red )
-						term.write("No write since last change, ! to override")
-						term.setBackgroundColour( colors.black )
-					else
-						running = false
-					end
-				end
-				if command == "q!" then
-					running = false
-				end
-				if command == "w" then
-					file.write()
-				end
-				if command == "wq" then
-					file.write()
-					running = false
-				end
-
-				triggered = true
-			end
-
-			-- clears the list of pressed keys if the last button press
-			-- did something
 			if triggered then
-				-- used by 'd'
-				readyForNext = false
 				keyPresses = {}
 			end
 
