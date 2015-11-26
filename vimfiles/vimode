@@ -97,7 +97,7 @@ function insertMode(line, column, pos)
 				global.setVar("hasChanged", true)
 
 				global.setLine(line, strBefore)
-				table.insert(lines, line + 1, strAfter)
+				global.insertLine(line + 1, strAfter)
 				strAfter = ""
 				global.setVar("length", global.getVar("length") + 1)
 
@@ -146,7 +146,14 @@ function normalMode()
 		j = "j",
 		k = "k",
 		h = "h",
-		l = "l"
+		l = "l",
+
+		w = "w",
+		W = "W",
+		b = "b",
+		B = "B",
+		e = "e",
+		E = "E",
 	}
 	local triggered = false
 	local keyPresses = {}
@@ -228,6 +235,41 @@ function normalMode()
 				screen.redraw()
 				triggered = true
 			end
+
+			-- TODO differentiate between 'w' and "w"
+			if key == "w" or key == "W" then
+				-- This won't work then the line wrap
+				-- TODO change to use "currentColumn"
+				local tXS, tXE = string.find(global.getLine(global.getVar("currentLine")), " ", cursorX)
+				if  tXS ~= nil then
+					cursorX = tXS + 1
+				else
+					cursorX = string.len(global.getLine(global.getVar("currentLine")))
+				end
+			end
+			if key == "e" or key == "E" then
+				local tXS, tXE = string.find(global.getLine(global.getVar("currentLine")), " ", cursorX + 2)
+				if  tXS ~= nil then
+					cursorX = tXS - 1
+				else
+					cursorX = string.len(global.getLine(global.getVar("currentLine")))
+				end
+			end
+			if key == "b" or key == "B" then
+				local tempX
+				local line = global.getLine(global.getVar("currentLine"))
+				local tXS, tXE = string.find( string.reverse(line), " ", 
+					string.len(line) - cursorX - 1)
+					-- Aga|Thi wor -- 11
+					-- orw ihT|agA
+				if  tXS ~= nil then
+					cursorX = string.len(line) - tXS + 2
+				else
+					cursorX = 1
+				end
+
+			end
+
 
 			if key == "x" then
 				global.setVar("hasChanged", true)

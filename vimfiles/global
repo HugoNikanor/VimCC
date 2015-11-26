@@ -52,3 +52,7 @@ function removeLine(lineNo)
 	table.remove(lines, lineNo)
 	setVar("length", getVar("length") - 1)
 end
+
+function insertLine( pos, text )
+	table.insert(lines, pos, text)
+end
