@@ -1,14 +1,31 @@
 
 function redraw()
-	term.setCursorPos(1, 1)
 	term.clear()
+	term.setCursorPos(1, 1)
+
 	local topLine = global.getVar("topLine")
-	for i=topLine, topLine+global.getVar("termY")-2 do
-		if global.getLine(i) ~= nil then
-			print(global.getLine(i))
+	local lineskip = 0
+
+	-- TODO maybe this should, like the real vim, have that when a line is
+	-- to long to render instead an '@' shows up indicating that there is more
+	-- 
+	-- This is a while loop to be able to do the check is go around
+	local i=topLine
+	while i <= topLine + global.getVar("termY") - 2 - lineskip do
+		local tLine = global.getLine(i)
+		if tLine ~= nil then
+			for l=1, string.len(tLine) do
+				term.write(tLine:sub(l,l))
+				if l % global.getVar("termX") == 0 then
+					lineskip = lineskip + 1
+					io.write("\n")
+				end
+			end
 		else
-			print("~")
+			io.write("~")
 		end
+		io.write("\n")
+		i = i + 1
 	end
 end
 

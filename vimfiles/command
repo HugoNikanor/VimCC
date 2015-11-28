@@ -51,21 +51,50 @@ function runViCommand( command, cursorX, cursorY )
 		cursorX = cursorX - numberMod
 	
 	elseif command[#command] == "j" then
-		cursorY = cursorY + 1
-		global.setVar("currentLine", global.getVar("currentLine") + 1)
-		if cursorY > global.getVar("termY") - 2 then
-			cursorY = global.getVar("termY") - 2
-			global.setVar("topLine", global.getVar("topLine") + 1)
+		if not (global.getVar("currentLine") == global.getLength()) then
+			local curLine = global.getVar("currentLine") + numberMod
+
+			local linesOnScreen = 0
+			local skippedLines = 0
+			--[[
+			for i=1, global.getVar("termY")-1-skippedLines do
+				local lineNo = i + global.getVar("topLine") - 1
+				if lineNo > global.getLength() then break end
+				local tempLine = global.getLine( lineNo )
+				local lineOccupies = 
+					math.ceil(string.len(tempLine) / global.getVar("termX"))
+				linesOnScreen = linesOnScreen + 1
+				skippedLines = skippedLines + (lineOccupies - 1)
+			end
+			
+			screen.debug(linesOnScreen)
+			]]
+			-- Loop through all the lines on the screen
+			for i=global.getVar("topLine"), (global.getVar("topLine") + global.getVar("termY") - 2) - skippedLines do
+				linesOnScreen = linesOnScreen + 1
+				--skippedLines = skippedLines + (math.ceil(string.len(global.getLine(i)) / global.getVar("termY")) - 1)
+
+			end
+			screen.debug(linesOnScreen)
+			--linesOnScreen = global.getVar("topLine") + global.getVar("termY") - 1
+
+			while curLine > global.getLength() do
+				curLine = curLine - 1
+			end
+
+			-- scroll topLine downwards until curLine is on the screen
+			while curLine > global.getVar("topLine") + linesOnScreen - 1 do
+			--while curLine > global.getVar("topLine") + global.getVar("termY") - 1 do
+				global.setVar("topLine", global.getVar("topLine") + 1)
+			end
+
+
+			global.setVar("currentLine", curLine)
+			cursorY = curLine - global.getVar("topLine") + 1
+			screen.redraw()
 		end
-		if cursorY > global.getLength() then
-			cursorY = global.getLength()
-			global.setVar("currentLine", global.getLength())
-		end
-		if global.getVar("currentLine") > global.getLength() then
-			global.setVar("currentLine", global.getLength())
-			global.setVar( global.getLength() )
-		end
-		screen.redraw()
+
+
 	
 	elseif command[#command] == "k" then
 		cursorY = cursorY - 1
@@ -180,6 +209,9 @@ function runViCommand( command, cursorX, cursorY )
 		local command = vimode.commandMode()
 		runExCommand( command )
 
+
+	else
+		triggered = false
 	end
 
 

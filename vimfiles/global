@@ -31,12 +31,13 @@ end
 ------------------------------
 
 local lines = {}
-local length = 1
+local length = 0
 
 function getLines()
 	return lines
 end
 
+-- screen uses the possible nil value that this may return
 function getLine(lineNo)
 	return lines[lineNo]
 end
