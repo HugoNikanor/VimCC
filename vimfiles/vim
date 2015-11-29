@@ -28,8 +28,19 @@ global.setVar("termY", termY)
 
 global.setVar("hasChanged", false)
 
-local fileName = args[1]
-global.setVar("fileName", fileName)
+-- TODO check if file is read only
+if #args < 1 then
+	error("please specify a file")
+end
+
+local sPath = shell.resolve( args[1] )
+if fs.exists( sPath ) and fs.isDir( sPath ) then
+	print( "Cannot edit a directory." )
+	return
+end
+global.setVar("fileName", sPath)
+
+
 
 -- what absolute line are selected
 global.setVar("currentLine", 1)

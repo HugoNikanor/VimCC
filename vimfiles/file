@@ -2,6 +2,7 @@
 function write()
 	local file = fs.open(global.getVar("fileName"), "w")
 	for i=1, global.getLength() do
+		-- TODO this crashes if the file is write only
 		file.writeLine(global.getLine(i))
 	end
 	file.close()
@@ -14,16 +15,18 @@ end
 	of strings
 ]]--
 function read(path)
-	--TODO create new file if file doesn't exist
-	--TODO other safeguards
-	local file = fs.open(global.getVar("fileName"), "r")
+	local file = io.open(global.getVar("fileName"), "r")
 	local lines = {}
-	local tempLine = file.readLine()
+	if fs.exists( global.getVar("fileName") ) then
+		local tempLine = file:read()
 
-	while tempLine ~= nil do
-		lines[#lines + 1] = tempLine
-		tempLine = file.readLine()
+		while tempLine ~= nil do
+			lines[#lines + 1] = tempLine
+			tempLine = file:read()
+		end
+		file:close()
+	else
+		lines[#lines + 1] = ""
 	end
-	file.close()
 	return lines
 end
