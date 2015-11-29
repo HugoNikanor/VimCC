@@ -1,5 +1,8 @@
 
-local filename = ".vimlog-"..os.day().."-"..os.time()
+if not fs.isDir("/log") then
+	fs.makeDir("/log")
+end
+local filename = "/log/.vimlog-"..os.day().."-"..os.time()
 local file = fs.open(filename, "a")
 
 function log( message )

@@ -24,7 +24,7 @@ end
 -- command should be a 'char' array
 --
 -- returns if the command triggered something
-function runViCommand( command, cursorX, cursorY )
+function runViCommand( command--[[, cursorX, cursorY ]])
 	local numberMod, otherMod = parseViCommand( command )
 
 	local triggered = true
