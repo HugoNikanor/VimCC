@@ -48,67 +48,44 @@ function commandMode()
 	end
 end
 
--- line: what line number
--- column: column number
 -- pos: where should insert mode be entered in realtion to the cursor
 -- 		here
 -- 		beginning
 -- 		after
 -- 		end
-function insertMode(line, column, pos)
+function insertMode(pos)
 	os.sleep(0.1)
 
 	local strBefore
 	local strAfter
 
-	-- Also have 'begining' and 'end'
+
 	if pos == "here" then
-		strBefore = string.sub(global.getLine(line), 1, column - 1)
-		strAfter = string.sub(global.getLine(line), column)
 	elseif pos == "after" then
-		strBefore = string.sub(global.getLine(line), 1, column)
-		strAfter = string.sub(global.getLine(line), column + 1)
-		column = column + 1
+		global.setVar("currentColumn", global.getVar("currentColumn") + 1)
 	elseif pos == "beginning" then
-		column = string.len(string.match(global.getLine(line), "%s*"))
-		strBefore = string.sub(global.getLine(line), 1, column)
-		column = column + 1
-		strAfter = string.sub(global.getLine(line), column)
+		global.setVar("currentColumn", string.len(string.match(global.getLine(global.getVar("currentLine")), "%s*")))
 	elseif pos == "0" then
-		strBefore = ""
-		strAfter = global.getLine(line)
-		column = 1
+		global.setVar("currentColumn", 1)
 	elseif pos == "end" then
-		strBefore = global.getLine(line)
-		strAfter = ""
-		column = string.len(global.getLine(line)) + 1
+		global.setVar("currentColumn", string.len(global.getLine(global.getVar("currentColumn"))) + 1)
 	elseif pos == "newline" then
 		global.setVar("hasChanged", true)
-
-		line = line + 1
-
-		global.setVar("currentLine", line)
-		global.insertLine(line, "")
-
-		strBefore = ""
-		strAfter = ""
-
-		column = 1
-		screen.redraw()
+		global.setVar("currentLine", global.getVar("currentLine") + 1)
+		global.insertLine(global.getVar("currentLine"), "")
+		global.setVar("currentColumn", 1)
 	elseif pos == "prevline" then
 		global.setVar("hasChanged", true)
-
-		global.insertLine(line + 1, global.getLine(line))
-		global.setLine(line, "")
-
-		strBefore = ""
-		strAfter = ""
-
-		column = 1
-		screen.redraw()
+		global.insertLine(global.getVar("currentLine") + 1, global.getLine(global.getVar("currentLine")))
+		global.setLine(global.getVar("currentLine"), "")
+		global.setVar("currentColumn", 1)
 	end
 
-	term.setCursorPos( column, line )
+	strBefore = string.sub(global.getLine(global.getVar("currentLine")), 1, global.getVar("currentColumn") - 1)
+	strAfter = string.sub(global.getLine(global.getVar("currentLine")), global.getVar("currentColumn"))
+
+	-- TODO the cursor should blink while in insert mode
+	screen.redraw()
 
 	local event, key = os.pullEvent()
 	while true do
@@ -119,63 +96,47 @@ function insertMode(line, column, pos)
 				break
 			end
 
-			-- You currently can backspace past the screen
+			-- TODO You currently can backspace past the screen
 			if key == keys.backspace then
 				strBefore = string.sub(strBefore, 1, string.len(strBefore) - 1)
-				column = column - 1
+				global.setVar("currentColumn", global.getVar("currentColumn") - 1)
+				global.setLine(global.getVar("currentLine"), strBefore..strAfter)
 
-				term.clearLine()
-				term.setCursorPos(1, line)
-				term.write(strBefore..strAfter)
-				global.setLine(line, strBefore..strAfter)
-
-				term.setCursorPos(column, line)
+				--term.setCursorPos(column, line)
 			end
 
 			if key == keys.delete then
 				strAfter = string.sub(strAfter, 2)
+				global.setLine(global.getVar("currentLine"), strBefore..strAfter)
 
-				term.clearLine()
-				term.setCursorPos(1, line)
-				term.write(strBefore..strAfter)
-				global.setLine(line, strBefore..strAfter)
-
-				term.setCursorPos(column, line)
+				--term.setCursorPos(column, line)
 			end
 
+			-- TODO this sholud be better
 			if key == keys.enter then
 				global.setVar("hasChanged", true)
 
-				global.setLine(line, strBefore)
+				global.setLine(global.getVar("currentLine"), strBefore)
 
-				line = line + 1
-				column = 1
-				global.insertLine(line, strAfter)
+				global.setVar("currentLine", global.getVar("currentLine") + 1)
+				global.setVar("currentColumn", 1)
+				global.insertLine(global.getVar("currentLine"), strAfter)
 				strBefore = ""
 
-				global.setVar("currentLine", line)
-
-				screen.redraw()
-				term.setCursorPos(column, line)
-
+				--screen.redraw()
 			end
+
+			screen.redraw()
 		end
 
 		-- text entry
 		if event == "char" then
 			global.setVar("hasChanged", true)
+			global.setVar("currentColumn", global.getVar("currentColumn") + 1)
 
 			strBefore = strBefore..key
-			--[[
-			term.clearLine()
-			term.setCursorPos(1, global.getVar("currentLine")-global.getVar("topLine")+1)
-			term.write(strBefore..strAfter)
-			global.setLine(line, strBefore..strAfter)
-
-			column = column + 1
-			term.setCursorPos(column, line)
-			]]
-			global.setLine(line, strBefore..strAfter)
+			
+			global.setLine(global.getVar("currentLine"), strBefore..strAfter)
 			screen.redraw()
 		end
 
@@ -183,16 +144,11 @@ function insertMode(line, column, pos)
 		event, key = os.pullEvent()
 	end
 
-	return column, line
-
-
 end
 
 function normalMode()
 	term.setCursorBlink(false)
 
-	local cursorX, cursorY = 1, 1
-	term.setCursorPos(cursorX, cursorY)
 
 	local keyPresses = {}
 
@@ -204,13 +160,10 @@ function normalMode()
 
 			keyPresses[#keyPresses + 1] = key
 
-			local triggered = false
-			triggered, cursorX, cursorY =
-				command.runViCommand( keyPresses, cursorX, cursorY )
+			local triggered = command.runViCommand( keyPresses, cursorX, cursorY )
 
 			if triggered then
 				keyPresses = {}
-				term.setCursorPos(cursorX, cursorY)
 			end
 		end
 	end
