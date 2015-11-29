@@ -29,6 +29,9 @@ function redraw()
 	end
 end
 
+function placeCursor()
+end
+
 function debug(message)
 	term.setCursorPos(10, 10)
 	if message==nil then

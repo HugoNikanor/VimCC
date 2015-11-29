@@ -166,6 +166,7 @@ function insertMode(line, column, pos)
 			global.setVar("hasChanged", true)
 
 			strBefore = strBefore..key
+			--[[
 			term.clearLine()
 			term.setCursorPos(1, global.getVar("currentLine")-global.getVar("topLine")+1)
 			term.write(strBefore..strAfter)
@@ -173,6 +174,9 @@ function insertMode(line, column, pos)
 
 			column = column + 1
 			term.setCursorPos(column, line)
+			]]
+			global.setLine(line, strBefore..strAfter)
+			screen.redraw()
 		end
 
 		-- pull next event

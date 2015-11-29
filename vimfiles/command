@@ -56,27 +56,26 @@ function runViCommand( command, cursorX, cursorY )
 
 			local linesOnScreen = 0
 			local skippedLines = 0
-			--[[
-			for i=1, global.getVar("termY")-1-skippedLines do
-				local lineNo = i + global.getVar("topLine") - 1
-				if lineNo > global.getLength() then break end
-				local tempLine = global.getLine( lineNo )
-				local lineOccupies = 
-					math.ceil(string.len(tempLine) / global.getVar("termX"))
-				linesOnScreen = linesOnScreen + 1
-				skippedLines = skippedLines + (lineOccupies - 1)
-			end
-			
-			screen.debug(linesOnScreen)
-			]]
+
 			-- Loop through all the lines on the screen
-			for i=global.getVar("topLine"), (global.getVar("topLine") + global.getVar("termY") - 2) - skippedLines do
+			local i=global.getVar("topLine")
+			cursorY = 1
+			while i <= global.getVar("topLine") + global.getVar("termY") - 2 - skippedLines do
 				linesOnScreen = linesOnScreen + 1
-				--skippedLines = skippedLines + (math.ceil(string.len(global.getLine(i)) / global.getVar("termY")) - 1)
+				-- Please don't toture me to hard for this
+				local ch = (math.floor(string.len(global.getLine(i)) / (global.getVar("termX") + 0.000001)))
+				skippedLines = skippedLines + ch
+
+				-- Brute forcing the cursor position
+				if i < curLine then
+					cursorY = cursorY + 1 + ch
+				end
+				i = i + 1
 
 			end
-			screen.debug(linesOnScreen)
-			--linesOnScreen = global.getVar("topLine") + global.getVar("termY") - 1
+
+			--logger.log("skippedLines " .. skippedLines)
+			--logger.log("linesOnScreen " .. linesOnScreen)
 
 			while curLine > global.getLength() do
 				curLine = curLine - 1
@@ -84,30 +83,55 @@ function runViCommand( command, cursorX, cursorY )
 
 			-- scroll topLine downwards until curLine is on the screen
 			while curLine > global.getVar("topLine") + linesOnScreen - 1 do
-			--while curLine > global.getVar("topLine") + global.getVar("termY") - 1 do
 				global.setVar("topLine", global.getVar("topLine") + 1)
+				cursorY = cursorY - 1
 			end
-
-
 			global.setVar("currentLine", curLine)
-			cursorY = curLine - global.getVar("topLine") + 1
+
 			screen.redraw()
 		end
 
 
 	
 	elseif command[#command] == "k" then
-		cursorY = cursorY - 1
-		global.setVar("currentLine", global.getVar("currentLine") - 1)
-		if cursorY < 1 then
+		if not (global.getVar("currentLine") == 1) then
+			local curLine = global.getVar("currentLine") - numberMod
+
+			local linesOnScreen = 0
+			local skippedLines = 0
+
+			-- Loop through all the lines on the screen
+			local i=global.getVar("topLine")
 			cursorY = 1
-			global.setVar("topLine", global.getVar("topLine") - 1)
+			while i <= global.getVar("topLine") + global.getVar("termY") - 2 - skippedLines do
+				linesOnScreen = linesOnScreen + 1
+				-- Please don't toture me to hard for this
+				local ch = (math.floor(string.len(global.getLine(i)) / (global.getVar("termX") + 0.000001)))
+				skippedLines = skippedLines + ch
+
+				-- Brute forcing the cursor position
+				if i < curLine then
+					cursorY = cursorY + 1 + ch
+				end
+				i = i + 1
+
+			end
+
+			--logger.log("skippedLines " .. skippedLines)
+			--logger.log("linesOnScreen " .. linesOnScreen)
+
+			while curLine < 1 do
+				curLine = curLine + 1
+			end
+
+			-- scroll topLine upwards until curLine is on the screen
+			while curLine < global.getVar("topLine") do
+				global.setVar("topLine", global.getVar("topLine") - 1)
+			end
+			global.setVar("currentLine", curLine)
+
+			screen.redraw()
 		end
-		if global.getVar("currentLine") < 1 then
-			global.setVar("currentLine", 1)
-			global.setVar("topLine", 1)
-		end
-		screen.redraw()
 
 	
 	elseif command[#command] == "w" or command[#command] == "W" then
@@ -139,7 +163,7 @@ function runViCommand( command, cursorX, cursorY )
 		local line = global.getLine(global.getVar("currentLine"))
 		local tXS, tXE = string.find( string.reverse(line), "%s", 
 			string.len(line) - cursorX - 1)
-			-- Aga|Thi wor -- 11
+			-- Aga|Thi wor -- 11
 			-- orw ihT|agA
 		if  tXS ~= nil then
 			cursorX = string.len(line) - tXS + 2

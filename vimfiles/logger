@@ -1,0 +1,8 @@
+
+local filename = ".vimlog-"..os.day().."-"..os.time()
+local file = fs.open(filename, "a")
+
+function log( message )
+	file.writeLine(message)
+	file.flush()
+end
