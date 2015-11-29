@@ -45,10 +45,14 @@ function runViCommand( command, cursorX, cursorY )
 		end
 	
 	elseif command[#command] == "l" then
-		cursorX = cursorX + numberMod
+		--cursorX = cursorX + numberMod
+		global.setVar("currentColumn", global.getVar("currentColumn") + numberMod)
+		screen.redraw()
 	
 	elseif command[#command] == "h" then
-		cursorX = cursorX - numberMod
+		--cursorX = cursorX - numberMod
+		global.setVar("currentColumn", global.getVar("currentColumn") - numberMod)
+		screen.redraw()
 	
 	elseif command[#command] == "j" then
 		if not (global.getVar("currentLine") == global.getLength()) then
@@ -61,15 +65,18 @@ function runViCommand( command, cursorX, cursorY )
 			local i=global.getVar("topLine")
 			cursorY = 1
 			while i <= global.getVar("topLine") + global.getVar("termY") - 2 - skippedLines do
+				if i > global.getLength() then break end
 				linesOnScreen = linesOnScreen + 1
 				-- Please don't toture me to hard for this
 				local ch = (math.floor(string.len(global.getLine(i)) / (global.getVar("termX") + 0.000001)))
 				skippedLines = skippedLines + ch
 
 				-- Brute forcing the cursor position
+				--[[
 				if i < curLine then
 					cursorY = cursorY + 1 + ch
 				end
+				]]
 				i = i + 1
 
 			end
@@ -84,7 +91,7 @@ function runViCommand( command, cursorX, cursorY )
 			-- scroll topLine downwards until curLine is on the screen
 			while curLine > global.getVar("topLine") + linesOnScreen - 1 do
 				global.setVar("topLine", global.getVar("topLine") + 1)
-				cursorY = cursorY - 1
+				--cursorY = cursorY - 1
 			end
 			global.setVar("currentLine", curLine)
 
@@ -106,13 +113,16 @@ function runViCommand( command, cursorX, cursorY )
 			while i <= global.getVar("topLine") + global.getVar("termY") - 2 - skippedLines do
 				linesOnScreen = linesOnScreen + 1
 				-- Please don't toture me to hard for this
+				logger.log(i)
 				local ch = (math.floor(string.len(global.getLine(i)) / (global.getVar("termX") + 0.000001)))
 				skippedLines = skippedLines + ch
 
 				-- Brute forcing the cursor position
+				--[[
 				if i < curLine then
 					cursorY = cursorY + 1 + ch
 				end
+				]]
 				i = i + 1
 
 			end

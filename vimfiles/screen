@@ -15,7 +15,12 @@ function redraw()
 		local tLine = global.getLine(i)
 		if tLine ~= nil then
 			for l=1, string.len(tLine) do
-				term.write(tLine:sub(l,l))
+				if i == global.getVar("currentLine") and
+				   l == global.getVar("currentColumn") then
+					term.blit(tLine:sub(l,l), "f", "0")
+				else
+					term.write(tLine:sub(l,l))
+				end
 				if l % global.getVar("termX") == 0 then
 					lineskip = lineskip + 1
 					io.write("\n")

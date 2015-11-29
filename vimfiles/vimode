@@ -189,7 +189,7 @@ function insertMode(line, column, pos)
 end
 
 function normalMode()
-	term.setCursorBlink(true)
+	term.setCursorBlink(false)
 
 	local cursorX, cursorY = 1, 1
 	term.setCursorPos(cursorX, cursorY)
