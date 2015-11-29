@@ -26,6 +26,11 @@ function redraw()
 					io.write("\n")
 				end
 			end
+			-- if inputing data at the end of the line
+			if global.getVar("currentColumn") == string.len(tLine) + 1 and
+			   global.getVar("currentLine") == i then
+				term.blit(" ", "f", "0")
+			end
 		else
 			io.write("~")
 		end

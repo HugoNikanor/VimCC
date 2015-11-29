@@ -22,51 +22,52 @@ local function parseViCommand( presses )
 
 end
 
+-- used by the 'j' and 'k' move commands
 local function cursorVerticalMove( numberMod )
-			local curLine = global.getVar("currentLine") + numberMod
+		local curLine = global.getVar("currentLine") + numberMod
 
-			-- Check how many lines are on the screen
-			local linesOnScreen = 0
-			local skippedLines = 0
-			local i=global.getVar("topLine")
-			while i <= global.getVar("topLine") + global.getVar("termY") - 2 - skippedLines do
-				if i > global.getLength() then break end
-				linesOnScreen = linesOnScreen + 1
+		-- Check how many lines are on the screen
+		local linesOnScreen = 0
+		local skippedLines = 0
+		local i=global.getVar("topLine")
+		while i <= global.getVar("topLine") + global.getVar("termY") - 2 - skippedLines do
+			if i > global.getLength() then break end
+			linesOnScreen = linesOnScreen + 1
 
-				-- Please don't toture me to hard for this
-				local ch = math.floor(string.len(global.getLine(i)) / (global.getVar("termX") + 0.000001))
-				skippedLines = skippedLines + ch
+			-- Please don't toture me to hard for this
+			local ch = math.floor(string.len(global.getLine(i)) / (global.getVar("termX") + 0.000001))
+			skippedLines = skippedLines + ch
 
-				i = i + 1
+			i = i + 1
 
-			end
+		end
 
-			--logger.log("skippedLines " .. skippedLines)
-			--logger.log("linesOnScreen " .. linesOnScreen)
+		--logger.log("skippedLines " .. skippedLines)
+		--logger.log("linesOnScreen " .. linesOnScreen)
 
-			while curLine < 1 do
-				curLine = curLine + 1
-			end
-			while curLine > global.getLength() do
-				curLine = curLine - 1
-			end
+		while curLine < 1 do
+			curLine = curLine + 1
+		end
+		while curLine > global.getLength() do
+			curLine = curLine - 1
+		end
 
-			-- scroll topLine upwards/downwards until curLine is on the screen
-			while curLine < global.getVar("topLine") do
-				global.setVar("topLine", global.getVar("topLine") - 1)
-			end
-			while curLine > global.getVar("topLine") + linesOnScreen - 1 do
-				global.setVar("topLine", global.getVar("topLine") + 1)
-			end
-			global.setVar("currentLine", curLine)
+		-- scroll topLine upwards/downwards until curLine is on the screen
+		while curLine < global.getVar("topLine") do
+			global.setVar("topLine", global.getVar("topLine") - 1)
+		end
+		while curLine > global.getVar("topLine") + linesOnScreen - 1 do
+			global.setVar("topLine", global.getVar("topLine") + 1)
+		end
+		global.setVar("currentLine", curLine)
 
-			-- Fix the column if it's to large
-			local curX = global.getVar("currentColumn")
-			local strLen = string.len(global.getLine(curLine))
-			if curX > strLen then
-				curX = strLen
-			end
-			global.setVar("currentColumn", curX)
+		-- Fix the column if it's to large
+		local curX = global.getVar("currentColumn")
+		local strLen = string.len(global.getLine(curLine))
+		if curX > strLen then
+			curX = strLen
+		end
+		global.setVar("currentColumn", curX)
 end
 
 -- command should be a 'char' array
