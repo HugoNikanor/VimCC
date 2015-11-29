@@ -1,4 +1,3 @@
-
 function commandMode() 
 	local command = ""
 	local pos = 1

@@ -1,4 +1,3 @@
-
 function redraw()
 	term.clear()
 	term.setCursorPos(1, 1)
@@ -8,6 +7,8 @@ function redraw()
 
 	-- TODO maybe this should, like the real vim, have that when a line is
 	-- to long to render instead an '@' shows up indicating that there is more
+	-- TODO also, then a line as longer than the number of characters on the screen,
+	-- displaying lines before the lines breaks down
 	-- 
 	-- This is a while loop to be able to do the check is go around
 	local i=topLine

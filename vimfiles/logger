@@ -1,4 +1,3 @@
-
 if not fs.isDir("/log") then
 	fs.makeDir("/log")
 end

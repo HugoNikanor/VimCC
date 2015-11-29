@@ -1,4 +1,3 @@
-
 function write()
 	local file = fs.open(global.getVar("fileName"), "w")
 	for i=1, global.getLength() do

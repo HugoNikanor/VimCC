@@ -1,4 +1,3 @@
-
 local apiPath = "/utils/vimfiles/"
 local apis = {
 	"global",
