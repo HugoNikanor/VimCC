@@ -66,6 +66,9 @@ local function cursorVerticalMove( numberMod )
 		if curX > strLen then
 			curX = strLen
 		end
+		if strLen == 0 then
+			curX = 1
+		end
 		global.setVar("currentColumn", curX)
 end
 
@@ -102,6 +105,9 @@ function runViCommand(command)
 		local strLen = string.len(global.getLine(global.getVar("currentLine")))
 		if curX > strLen then
 			curX = strLen
+		end
+		if strLen == 0 then
+			curX = 1
 		end
 		global.setVar("currentColumn", curX)
 			
