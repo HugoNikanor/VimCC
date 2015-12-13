@@ -41,8 +41,8 @@ local function cursorVerticalMove( numberMod )
 
 		end
 
-		--logger.log("skippedLines " .. skippedLines)
-		--logger.log("linesOnScreen " .. linesOnScreen)
+		--logger.info("skippedLines " .. skippedLines)
+		--logger.info("linesOnScreen " .. linesOnScreen)
 
 		while curLine < 1 do
 			curLine = curLine + 1

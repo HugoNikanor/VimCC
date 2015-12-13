@@ -56,7 +56,11 @@ screen.redraw()
 
 
 
-logger.log("log file created")
+if not fs.isDir("/log") then
+	fs.makeDir("/log")
+end
+logger.init("/.vimlog/vimlog-"..os.day().."-"..os.time(), logger.logLevel.WARNINGS)
+logger.info("log file created")
 
 
 vimode.normalMode()

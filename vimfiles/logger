@@ -1,10 +1,25 @@
-if not fs.isDir("/log") then
-	fs.makeDir("/log")
-end
-local filename = "/log/.vimlog-"..os.day().."-"..os.time()
-local file = fs.open(filename, "a")
+local filename
+local file
+logLevel = {
+	ALL = "ALL",
+	WARNINGS = "WARNINGS",
+}
+local level
 
-function log( message )
-	file.writeLine(message)
+function init( path, llevel )
+	filename = path
+	level = llevel
+	file = fs.open(filename, "a")
+end
+
+function info( message )
+	if level == "WARNINGS" then else
+		file.writeLine("INFO:"..message)
+		file.flush()
+	end
+end
+
+function warning( message )
+	file.writeLine("WARN:"..message)
 	file.flush()
 end
