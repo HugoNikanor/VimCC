@@ -45,6 +45,10 @@ function getLine(lineNo)
 	return lines[lineNo]
 end
 
+function getCurLine()
+	return lines[globals["currentLine"]];
+end
+
 function setLine(lineNo, text)
 	lines[lineNo] = text
 end

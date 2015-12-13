@@ -105,7 +105,7 @@ function runViCommand(command)
 			
 	elseif command[#command] == "l" then
 		local curX = global.getVar("currentColumn") + numberMod
-		local strLen = string.len(global.getLine(global.getVar("currentLine")))
+		local strLen = string.len(global.getCurLine())
 		if curX > strLen then
 			curX = strLen
 		end
@@ -135,27 +135,35 @@ function runViCommand(command)
 			cursorVerticalMove( -numberMod )
 		end
 
+	elseif command[#command] == "$" then
+		global.setVar("actualColumn", string.len(global.getCurLine()))
+		global.setVar("currentColumn", string.len(global.getCurLine()))
+
+	elseif command[#command] == "^" then
+		global.setVar("actualColumn", 1)
+		global.setVar("currentColumn", 1)
+
 	
 	elseif command[#command] == "w" or command[#command] == "W" then
 		-- TODO differentiate between 'w' and "w"
 		--
 		-- This won't carry on to the next line, but it does work with linewrap
 		for i=1, numberMod do
-			local tXS, tXE = string.find(global.getLine(global.getVar("currentLine")), "%s", global.getVar("currentColumn"))
+			local tXS, tXE = string.find(global.getCurLine(), "%s", global.getVar("currentColumn"))
 			if  tXS ~= nil then
 				global.setVar("currentColumn", tXS + 1)
 			else
-				global.setVar("currentColumn", string.len(global.getLine(global.getVar("currentLine"))))
+				global.setVar("currentColumn", string.len(global.getCurLine()))
 			end
 		end
 	
 	elseif command[#command] == "e" or command[#command] == "E" then
 		for i=1, numberMod do
-			local tXS, tXE = string.find(global.getLine(global.getVar("currentLine")), "%s", global.getVar("currentColumn") + 2)
+			local tXS, tXE = string.find(global.getCurLine(), "%s", global.getVar("currentColumn") + 2)
 			if  tXS ~= nil then
 				global.setVar("currentColumn", tXS - 1)
 			else
-				global.setVar("currentColumn", string.len(global.getLine(global.getVar("currentLine"))))
+				global.setVar("currentColumn", string.len(global.getCurLine()))
 			end
 		end
 	
@@ -163,7 +171,7 @@ function runViCommand(command)
 	--[[
 	elseif command[#command] == "b" or command[#command] == "B" then
 		local tempX
-		local line = global.getLine(global.getVar("currentLine"))
+		local line = global.getCurLine()
 		local tXS, tXE = string.find( string.reverse(line), "%s", 
 			string.len(line) - cursorX - 1)
 			-- Aga|Thi wor -- 11
@@ -180,12 +188,13 @@ function runViCommand(command)
 	
 	elseif command[#command] == "x" then
 		global.setVar("hasChanged", true)
-		temp = global.getLine(global.getVar("currentLine"))
+		temp = global.getCurLine()
 		a = string.sub(temp, 1, global.getVar("currentColumn") - 1)
 		b = string.sub(temp, global.getVar("currentColumn") + numberMod, string.len(temp)) 
 		global.setLine(global.getVar("currentLine"), a..b)
 		
 	
+
 	elseif command[#command] == "i" then
 		vimode.insertMode("here")
 	

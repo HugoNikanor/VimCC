@@ -63,7 +63,7 @@ function insertMode(pos)
 	elseif pos == "after" then
 		global.setVar("currentColumn", global.getVar("currentColumn") + 1)
 	elseif pos == "beginning" then
-		global.setVar("currentColumn", string.len(string.match(global.getLine(global.getVar("currentLine")), "%s*")))
+		global.setVar("currentColumn", string.len(string.match(global.getCurLine(), "%s*")))
 	elseif pos == "0" then
 		global.setVar("currentColumn", 1)
 	elseif pos == "end" then
@@ -75,13 +75,13 @@ function insertMode(pos)
 		global.setVar("currentColumn", 1)
 	elseif pos == "prevline" then
 		global.setVar("hasChanged", true)
-		global.insertLine(global.getVar("currentLine") + 1, global.getLine(global.getVar("currentLine")))
+		global.insertLine(global.getVar("currentLine") + 1, global.getCurLine())
 		global.setLine(global.getVar("currentLine"), "")
 		global.setVar("currentColumn", 1)
 	end
 
-	strBefore = string.sub(global.getLine(global.getVar("currentLine")), 1, global.getVar("currentColumn") - 1)
-	strAfter = string.sub(global.getLine(global.getVar("currentLine")), global.getVar("currentColumn"))
+	strBefore = string.sub(global.getCurLine(), 1, global.getVar("currentColumn") - 1)
+	strAfter = string.sub(global.getCurLine(), global.getVar("currentColumn"))
 
 	-- TODO the cursor should blink while in insert mode
 	screen.redraw()
@@ -94,7 +94,7 @@ function insertMode(pos)
 			if key == keys.tab then
 				-- the cursor can be one step to far to the right
 				-- this happens when appending text to a line
-				local strLen = string.len(global.getLine(global.getVar("currentLine")))
+				local strLen = string.len(global.getCurLine())
 				if global.getVar("currentColumn") > strLen then
 					global.setVar("currentColumn", strLen)
 				end
