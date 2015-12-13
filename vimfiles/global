@@ -5,6 +5,9 @@ local globals = {
 	fileName = "",
 	currentLine = 1,
 	currentColumn = 1,
+	-- Used when scrolling between lines
+	actualColumn = 1,
+
 	topLine = 1,
 	running = true,
 }

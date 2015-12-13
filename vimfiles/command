@@ -61,6 +61,9 @@ local function cursorVerticalMove( numberMod )
 		global.setVar("currentLine", curLine)
 
 		-- Fix the column if it's to large
+		if global.getVar("actualColumn") > global.getVar("currentColumn") then
+			global.setVar("currentColumn", global.getVar("actualColumn"))
+		end
 		local curX = global.getVar("currentColumn")
 		local strLen = string.len(global.getLine(curLine))
 		if curX > strLen then
@@ -109,6 +112,7 @@ function runViCommand(command)
 		if strLen == 0 then
 			curX = 1
 		end
+		global.setVar("actualColumn", curX)
 		global.setVar("currentColumn", curX)
 			
 	elseif command[#command] == "h" then
@@ -116,6 +120,7 @@ function runViCommand(command)
 		if curX < 1 then
 			curX = 1
 		end
+		global.setVar("actualColumn", curX)
 		global.setVar("currentColumn", curX)
 			
 	elseif command[#command] == "j" then

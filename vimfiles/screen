@@ -40,6 +40,39 @@ function redraw()
 	end
 end
 
+-- returns false if line couldn't be redrawn
+function redrawLine( lineNo )
+	local topLine = global.getVar("topLine")
+	local line = global.getLine( lineNo )
+
+	if lineNo < topLine then
+		return false
+	end
+	if lineNo >= topLine + global.getVar("termX") then
+		return false
+	end
+
+	local positionOnScreen = lineNo - topLine
+	for i=topLine, lineNo do
+	end
+end
+
+function drawLine( lineNo )
+	local tLine = global.getLine( lineNo )
+	for l=1, string.len(tLine) do
+		if i == global.getVar("currentLine") and
+		   l == global.getVar("currentColumn") then
+			term.blit(tLine:sub(l,l), "f", "0")
+		else
+			term.write(tLine:sub(l,l))
+		end
+		if l % global.getVar("termX") == 0 then
+			lineskip = lineskip + 1
+			io.write("\n")
+		end
+	end
+end
+
 function debug(message)
 	term.setCursorPos(10, 10)
 	if message==nil then
