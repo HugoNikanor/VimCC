@@ -1,6 +1,15 @@
+local commandKeys = {
+}
+local modKeys = {
+}
+
+-- TODO this should be updated so that if the numbers are in two
+-- places in the key sequence then the two numbers should be added
+-- instead of interpreted as one long number
 local function parseViCommand( presses ) 
 	local numberMod = tonumber(1)
 	local otherMod = {}
+	local command = {}
 
 	local numbers = ""
 
@@ -16,9 +25,75 @@ local function parseViCommand( presses )
 	end
 
 
-	return numberMod, otherMod
+	return numberMod, otherMod --, command
 
 
+end
+
+local function move( command, numberMod, otherMod )
+	-- command is how the cusor should move
+	-- 		h, j, k, l
+	-- 		0, ^, $
+	-- 		w, W, e, E, b, B
+	-- 		f, F, t, T
+	-- 		(, ), {, }, [[, ]], []
+	-- numberMod is how many time the move command should be repeated
+	-- otherMod if anything should be done while moving the cursor
+	-- 		y, Y
+	-- 		d, D
+	-- 		c, C
+	-- 		x, X
+	-- 		~
+	--
+	-- Please notice that all of these commands can't stack
+	--
+	-- Almost no commands wrap around lines
+	--
+	-- All commands take a numberMod and a move command unless
+	-- otherwise stated.
+	--
+	--
+	--
+	-- M O V E S
+	-- h, move left
+	-- l, move right
+	-- j, mode down
+	-- k, move up
+	--
+	-- ^, move left until start of text
+	-- 0, move left until start of line
+	-- $, move right until end of line
+	--
+	-- w, move right until start of next word
+	-- W, move right until after next space
+	-- e, move right until end of current word
+	-- E, move right up to the next space 
+	-- b, move left to start of current word
+	-- B, move left until preceeding space
+	--
+	--	All these takes one extra argument, to know what to find
+	-- f, move left until cursor is on a selected character
+	-- F, move right until cursor is on a selected character
+	-- t, move left until cunros is on the character before the selected character
+	-- T, move right until cunros is on the character before the selected character
+	--
+	-- (, ), ... 	These have to do with jumping sections, 
+	-- 	but otherwise they work as normal move commands
+	--
+	-- O T H E R _ M O D
+	-- 	Some of these have special cases where their function can differ on things
+	-- 	not related to move commands. (dd deletes the current line, for example)
+	--
+	-- y, copy characters moved over
+	-- Y, copy current line, doesn't take move commands
+	-- d, cut charactors moved over
+	-- D, cut from current column until end of line, doesn't take move commands
+	-- c, like 'd', but enters insert mode afterwards
+	-- D, lide 'D', but enters insert mode afterwards 
+	--
+	-- x, delete 'numberMod' characters forwards. Doesn't take move commands
+	-- X, delete 'numberMod' characters backwards. Doesn't take move commands
+	-- ~, change case for upcomming 'numberMod' characters. Doesn't take move commands
 end
 
 -- used by the 'j' and 'k' move commands
