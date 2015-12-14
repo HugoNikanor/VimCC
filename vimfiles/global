@@ -48,6 +48,9 @@ end
 function getCurLine()
 	return lines[globals["currentLine"]];
 end
+function setCurLine( text )
+	lines[globals["currentLine"]] = text
+end
 
 function setLine(lineNo, text)
 	lines[lineNo] = text

@@ -4,7 +4,7 @@ local modKeys = {
 }
 
 -- TODO this should be updated so that if the numbers are in two
--- places in the key sequence then the two numbers should be added
+-- places in the key sequence then the two numbers should be multiplied
 -- instead of interpreted as one long number
 local function parseViCommand( presses ) 
 	local numberMod = tonumber(1)
@@ -32,6 +32,11 @@ end
 
 local function move( command, numberMod, otherMod )
 	-- command is how the cusor should move
+	-- The only move commands are,
+	-- 		left, right, 
+	-- 		up, down
+	--
+	--	These can be called with the following keys:
 	-- 		h, j, k, l
 	-- 		0, ^, $
 	-- 		w, W, e, E, b, B
@@ -94,6 +99,48 @@ local function move( command, numberMod, otherMod )
 	-- x, delete 'numberMod' characters forwards. Doesn't take move commands
 	-- X, delete 'numberMod' characters backwards. Doesn't take move commands
 	-- ~, change case for upcomming 'numberMod' characters. Doesn't take move commands
+
+
+	-- Remember that all these are the same
+	-- 6x
+	-- 6dl
+	-- d6l
+	--
+	--	These are the same
+	-- 3d3l
+	-- 9dl
+	-- d9l
+	if command == "horiz" then
+		if otherMod == "delete" or otherMod == "yank" then
+			local curX = global.getVar("currentColumn")
+			local yankedString = string.sub(global.getCurLine(), curX, curX + numberMod)
+
+			if otherMod == "delete" then
+				global.setCurLine( 
+					string.sub( global.getCurLine(), 0, curX - 1) ..
+					string.sub( global.getCurLine(),
+					            curX,
+					            string.len(global.getCurLine())))
+			 end
+			 --TODO have special case for 'x' where the buffer isn't saved
+
+		elseif otherMod == "deol" then 
+		else -- simple move
+			global.setVar("currentColumn", global.getVar("currentColumn") + numberMod)
+		end
+		
+	elseif command == "vert" then
+		if otherMod == "delete" or otherMod == "yank" then
+			local curY = global.getVar("currentLine")
+			local yankedString = ""
+
+			if otherMod == "delete" then
+			end
+
+		else
+
+		end
+	end
 end
 
 -- used by the 'j' and 'k' move commands
