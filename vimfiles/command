@@ -232,6 +232,7 @@ end
 -- This could be optimized by placing the commands in the order
 -- most often used. Please don't do this
 function runViCommand( command )
+	-- This is so that a command is't otherMod of itself
 	local commandSub = {}
 	for i=1, #command - 1 do
 		commandSub[i] = command[i]
@@ -259,7 +260,7 @@ function runViCommand( command )
 		use = "move"
 	end
 
-	for i=1, number1 do
+	for number1Loop=1, number1 do
 		if command[#command] == "f" or 
 		   command[#command] == "t" then
 		   local event, keyToFind = os.pullEvent("char")
@@ -346,8 +347,11 @@ function runViCommand( command )
 
 		elseif command[#command] == "d" then
 			if otherMod == "d" then
-				-- delete 'number2' lines
-				logger.info( "d kinda ran" )
+				for i=1, number2 do
+					-- go to start of line
+					-- delete everything on line
+					-- delete ond of line
+				end
 			else
 				triggered = false
 			end
