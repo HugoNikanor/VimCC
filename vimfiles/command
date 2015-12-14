@@ -4,23 +4,23 @@ local modKeys = {
 }
 
 local function getNumber( presses, startPos )
-	local noTemp = tonumber( presses[i] )
+	local noTemp
 	local number = ""
+	local keyAfter = ""
 
 	local i = startPos
 	temp = presses[i]
 	while temp ~= nil do
-		i = i + 1
 		local tempNo = tonumber( temp )
 		if tempNo ~= nil then
 			number = number .. tempNo
 		else
+			keyAfter = temp
 			break
 		end
+		i = i + 1
 		temp = presses[i]
 	end
-
-	--screen.debug(number)
 	
 	if number == "" then
 		number = tonumber(1)
@@ -28,23 +28,18 @@ local function getNumber( presses, startPos )
 		number = tonumber(number)
 	end
 
-	return number, i
+	return number, i, keyAfter
 end
 
 local function parseViCommand( presses ) 
 	local numbers = { tonumber(1), tonumber(1) }
-	--local otherMod = {}
-	--local command = {}
+	local otherMod
 
 	local sPos = 1
-	numbers[1], sPos = getNumber( presses, sPos )
-	numbers[2], sPos = getNumber( presses, sPos )
+	numbers[1], sPos, otherMod = getNumber( presses, sPos )
+	numbers[2] = getNumber( presses, sPos + 1 )
 
-	--return numberMod, otherMod --, command
-	--screen.debug("n:"..numbers[1].. "m:"..numbers[2])
-	return numbers[1], numbers[2]
-
-
+	return otherMod, numbers[1], numbers[2]
 end
 
 -- used by the 'j' and 'k' move commands
@@ -101,7 +96,7 @@ local function cursorVerticalMove( numberMod )
 		global.setVar("currentColumn", curX)
 end
 
-local function move( command, numberMod, otherMod )
+local function move( command, numberMod, actionType, otherMod )
 	-- command is how the cusor should move, among a few other things
 	-- 		horiz
 	-- 		vert
@@ -193,16 +188,18 @@ local function move( command, numberMod, otherMod )
 		end
 
 	elseif command == "horiz" then
-		if otherMod == "delete" or otherMod == "yank" then
+		if actionType == "delete" or actionType == "yank" then
 			local curX = global.getVar("currentColumn")
 			local yankedString = string.sub(global.getCurLine(), curX, curX + numberMod)
 
-			if otherMod == "delete" then
+			if actionType == "delete" then
 				global.setCurLine( 
 					string.sub( global.getCurLine(), 0, curX - 1) ..
 					string.sub( global.getCurLine(),
-					            curX,
-					            string.len(global.getCurLine())))
+					            curX + numberMod ))
+				if otherMod == "i" then
+					vimode.insert("here")
+				end
 			 end
 			 --TODO have special case for 'x' where the buffer isn't saved
 
@@ -216,11 +213,11 @@ local function move( command, numberMod, otherMod )
 		end
 		
 	elseif command == "vert" then
-		if otherMod == "delete" or otherMod == "yank" then
+		if actionType == "delete" or actionType == "yank" then
 			--local curY = global.getVar("currentLine")
 			local yankedString = ""
 
-			if otherMod == "delete" then
+			if actionType == "delete" then
 			end
 
 		else
@@ -239,11 +236,24 @@ end
 -- most often used. Please don't do this
 function runViCommand(command)
 	--local numberMod, otherMod = parseViCommand( command )
-	local number1, number2 = parseViCommand( command )
+	local otherMod, number1, number2 = parseViCommand( command )
 
 	-- set this back to false if something shouldn't trigger
 	-- but most things should trigger, thereby true by default
 	local triggered = true
+
+	local use = "move" -- default value
+	local subMod = "n"
+	if otherMod == "d" then
+		use = "delete"
+	elseif otherMod == "c" then
+		use = "delete"
+		subMod = "i"
+	elseif otherMod == "y" then
+		use = "yank"
+	elseif otherMod == "" then
+		use = "move"
+	end
 
 	for i=1, number1 do
 		if command[#command] == "f" or 
@@ -262,47 +272,32 @@ function runViCommand(command)
 			end
 				
 		elseif command[#command] == "l" then
-			local curX = global.getVar("currentColumn") + number2
-			local strLen = string.len(global.getCurLine())
-			if curX > strLen then
-				curX = strLen
-			end
-			if strLen == 0 then
-				curX = 1
-			end
-			global.setVar("actualColumn", curX)
-			global.setVar("currentColumn", curX)
+			move( "horiz", 1, use, subMod )
 				
 		elseif command[#command] == "h" then
-			move( "horiz", -1, "none" )
+			move( "horiz", -1, use, subMod )
 				
 		elseif command[#command] == "j" then
-			move( "vert", number2, "none" )
+			move( "vert", number2, use, subMod )
 
 		-- this should be moved
 		elseif command[#command] == "J" then
-			move( "delEol", number2, "none" )
-
+			move( "delEol", number2, "delEol", subMod )
 		
 		elseif command[#command] == "k" then
-			move( "vert", -number2, "none" )
-			--if not (global.getVar("currentLine") == 1) then
-			--	cursorVerticalMove( -number2 )
-			--end
+			move( "vert", -number2, use, subMod )
 
 		elseif command[#command] == "$" then
 			move( "horiz", 
 			      string.len(global.getCurLine()) - global.getVar("currentColumn"),
-				  "none")
-			--global.setVar("actualColumn", string.len(global.getCurLine()))
-			--global.setVar("currentColumn", string.len(global.getCurLine()))
+				  use,
+				  subMod)
 
 		elseif command[#command] == "^" then
 			move( "horiz",
 			      -(global.getVar("currentColumn") - 1),
-				  "none")
-			--global.setVar("actualColumn", 1)
-			--global.setVar("currentColumn", 1)
+				  use,
+				  subMod)
 
 		
 		elseif command[#command] == "w" or command[#command] == "W" then
