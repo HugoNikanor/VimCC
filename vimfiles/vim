@@ -56,10 +56,10 @@ screen.redraw()
 
 
 
-if not fs.isDir("/log") then
-	fs.makeDir("/log")
+if not fs.isDir("/.vimlog") then
+	fs.makeDir("/.vimlog")
 end
-logger.init("/.vimlog/vimlog-"..os.day().."-"..os.time(), logger.logLevel.WARNINGS)
+logger.init("/.vimlog/vimlog-"..os.day().."-"..os.time(), logger.logLevel.ALL)
 logger.info("log file created")
 
 
