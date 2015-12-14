@@ -6,6 +6,9 @@ local globals = {
 	currentLine = 1,
 	currentColumn = 1,
 	-- Used when scrolling between lines
+	-- note that this still doesn't behave
+	-- exactly like the real deal. See one char lines
+	-- and last character on line
 	actualColumn = 1,
 
 	topLine = 1,

@@ -74,7 +74,8 @@ function drawLine( lineNo )
 end
 
 function debug(message)
-	term.setCursorPos(10, 10)
+	term.setCursorPos(global.getVar("termX") - 5,
+	                  global.getVar("termY") - 1)
 	if message==nil then
 		print("nil")
 	else
