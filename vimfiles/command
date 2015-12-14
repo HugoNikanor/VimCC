@@ -188,6 +188,7 @@ local function move( command, numberMod, actionType, otherMod )
 			local curX = global.getVar("currentColumn")
 			--local yankedString = string.sub(global.getCurLine(), curX, curX + numberMod)
 
+			--TODO make this work when moving left
 			if actionType == "delete" then
 				global.setCurLine( 
 					string.sub( global.getCurLine(), 0, curX - 1) ..
@@ -209,6 +210,7 @@ local function move( command, numberMod, actionType, otherMod )
 		
 	elseif command == "vert" then
 		if actionType == "delete" or actionType == "yank" then
+			--TODO (why do i know...) these thing
 			--local curY = global.getVar("currentLine")
 			local yankedString = ""
 
@@ -230,7 +232,11 @@ end
 -- This could be optimized by placing the commands in the order
 -- most often used. Please don't do this
 function runViCommand( command )
-	local otherMod, number1, number2 = parseViCommand( command )
+	local commandSub = {}
+	for i=1, #command - 1 do
+		commandSub[i] = command[i]
+	end
+	local otherMod, number1, number2 = parseViCommand( commandSub );
 
 	logger.info(" n1: " .. number1)
 	logger.info(" n2: " .. number2) -- n2 isn't used...
@@ -278,30 +284,22 @@ function runViCommand( command )
 		elseif command[#command] == "j" then
 			move( "vert", number2, use, subMod )
 
-		-- this should be moved
-		elseif command[#command] == "J" then
-			move( "delEol", number2, "delEol", subMod )
-		
 		elseif command[#command] == "k" then
 			move( "vert", -number2, use, subMod )
 
 		elseif command[#command] == "$" then
 			move( "horiz", 
 			      string.len(global.getCurLine()) - global.getVar("currentColumn"),
-				  use,
-				  subMod)
+				  use, subMod)
 
 		elseif command[#command] == "^" then
 			move( "horiz",
 			      -(global.getVar("currentColumn") - 1),
-				  use,
-				  subMod)
+				  use, subMod)
 
 		
+		-- TODO rewrite this to translate it into a number of horizontal steps
 		elseif command[#command] == "w" or command[#command] == "W" then
-			-- TODO differentiate between 'w' and "w"
-			--
-			-- This won't carry on to the next line, but it does work with linewrap
 			for i=1, number2 do
 				local tXS, tXE = string.find(global.getCurLine(), "%s", global.getVar("currentColumn"))
 				if  tXS ~= nil then
@@ -321,7 +319,6 @@ function runViCommand( command )
 				end
 			end
 		
-		-- TODO this is currently compleatly broken
 		--[[
 		elseif command[#command] == "b" or command[#command] == "B" then
 			local tempX
@@ -338,16 +335,24 @@ function runViCommand( command )
 		]]
 
 
-
-		
 		elseif command[#command] == "x" then
-			global.setVar("hasChanged", true)
-			temp = global.getCurLine()
-			a = string.sub(temp, 1, global.getVar("currentColumn") - 1)
-			b = string.sub(temp, global.getVar("currentColumn") + number2, string.len(temp)) 
-			global.setLine(global.getVar("currentLine"), a..b)
-			
+			move( "horiz", number2, "delete", subMod )
+		elseif command[#command] == "X" then
+			move( "horiz", -number2, "delete", subMod )
 		
+
+		elseif command[#command] == "J" then
+			move( "delEol", number2, "delEol", subMod )
+
+		elseif command[#command] == "d" then
+			if otherMod == "d" then
+				-- delete 'number2' lines
+				logger.info( "d kinda ran" )
+			else
+				triggered = false
+			end
+		
+
 
 		elseif command[#command] == "i" then
 			vimode.insertMode("here")
@@ -374,25 +379,6 @@ function runViCommand( command )
 
 
 		
-			--[[
-		elseif command[#command] == "d" then
-			-- used to check if this is the secound 'd'
-			local continue = false
-			for i=1, #command - 1 do
-				if command[i] == "d" then
-					continue = true
-				end
-			end
-			if continue then
-				global.setVar("hasChanged", true)
-				for i=0, number2 - 1 do
-					global.removeLine(global.getVar("currentLine"))
-				end
-
-			else
-				triggered = false;
-			end
-			]]
 
 
 		
@@ -414,7 +400,7 @@ function runViCommand( command )
 	return triggered
 end
 
-function parseExCommand( text ) 
+local function parseExCommand( text ) 
 end
 
 function runExCommand( command )
