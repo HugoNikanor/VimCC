@@ -26,8 +26,6 @@ local function getNumber( presses, startPos )
 	return number, i, keyAfter
 end
 
--- update this somehow to detect if the first number in a sequense is a zero
--- and then return that as the working command
 local function parseViCommand( presses ) 
 	local numbers = { tonumber(1), tonumber(1) }
 	local otherMod
@@ -163,22 +161,15 @@ local function move( command, numberMod, actionType, otherMod )
 	-- ~, change case for upcomming 'numberMod' characters. Doesn't take move commands
 
 
-	-- Remember that all these are the same
-	-- 6x
-	-- 6dl
-	-- d6l
-	--
-	--	These are the same
-	-- 3d3l
-	-- 9dl
-	-- d9l
-
 	-- merges current line with the next line, removes that line ('J')
 	if command == "delEol" then
 		local nextLine = global.getVar("currentLine") + 1
+		local mSpace
+		if subMod == "space" then mSpace = " " else mSpace = "" end
 		if global.getLine(nextLine) ~= nil then
 			global.setCurLine( 
-				global.getCurLine() .. " " ..
+				global.getCurLine() .. 
+				mSpace ..
 				global.getLine( nextLine ))
 			global.removeLine( nextLine )
 		end
@@ -208,7 +199,7 @@ local function move( command, numberMod, actionType, otherMod )
 				global.setCurLine( outString )
 
 				if otherMod == "i" then
-					vimode.insert("here")
+					vimode.insertMode("here")
 				end
 			 end
 
@@ -225,10 +216,6 @@ local function move( command, numberMod, actionType, otherMod )
 	elseif command == "vert" then
 		if actionType == "delete" or actionType == "yank" then
 			--TODO (Why, why do i know...) these thing
-			local yankedString = ""
-
-			if actionType == "delete" then
-			end
 
 		else
 			cursorVerticalMove( numberMod )
@@ -237,6 +224,26 @@ local function move( command, numberMod, actionType, otherMod )
 	screen.redraw()
 end
 
+local function goToEndOfLine( actionType )
+	move( 
+		"horiz", 
+		  string.len(global.getCurLine()) - global.getVar("currentColumn") + 1,
+		  actionType, "n")
+end
+
+local function goToStart( actionType, location )
+	-- location can be ( line | text )
+	local wsS, wsE = 
+		string.find( global.getCurLine(), "%s+" )
+	if location == "text" then
+		if wsS ~= 1 then wsE = 0 end
+	else 
+		wsE = 0 
+	end
+	move( "horiz",
+		  -(global.getVar("currentColumn") - (wsE + 1)),
+		  use, subMod)
+end
 
 -- command should be a 'char' array
 --
@@ -302,23 +309,14 @@ function runViCommand( command )
 			move( "vert", -number2, use, subMod )
 
 		elseif command[#command] == "$" then
-			move( "horiz", 
-			      string.len(global.getCurLine()) - global.getVar("currentColumn"),
-				  use, subMod)
+			goToEndOfLine( "move" )
 
 		elseif command[#command] == "^" then
-			local wsS, wsE = 
-			        string.find( global.getCurLine(), "%s+" )
-			if wsS ~= 1 then wsE = 0 end
-			move( "horiz",
-				  -(global.getVar("currentColumn") - (wsE + 1)),
-				  use, subMod)
+			goToStart( use, "text" )
 
 		elseif command[#command] == "0" and
 		       tonumber(command[#command - 1]) == nil then
-			move( "horiz",
-			      -(global.getVar("currentColumn") - 1),
-				  use, subMod )
+			goToStart( use, "line" )
 
 
 		-- TODO rewrite this to translate it into a number of horizontal steps
@@ -365,19 +363,22 @@ function runViCommand( command )
 		
 
 		elseif command[#command] == "J" then
-			move( "delEol", number2, "delEol", subMod )
+			move( "delEol", number2, "delEol", "space" )
 
 		elseif command[#command] == "d" then
 			if otherMod == "d" then
 				for i=1, number2 do
-					-- go to start of line
-					-- delete everything on line
-					-- delete ond of line
+					goToStart( "move", "line" )
+					goToEndOfLine( "delete" )
+					move( "delEol", 1, "delEol", "noSpace" )
 				end
 			else
 				triggered = false
 			end
-		
+
+		elseif command[#command] == "D" then
+			goToEndOfLine( "delete" )
+
 
 
 		elseif command[#command] == "i" then
