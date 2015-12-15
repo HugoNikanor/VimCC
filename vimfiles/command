@@ -186,17 +186,27 @@ local function move( command, numberMod, actionType, otherMod )
 	elseif command == "horiz" then
 		if actionType == "delete" or actionType == "yank" then
 			local curX = global.getVar("currentColumn")
-			--local yankedString = string.sub(global.getCurLine(), curX, curX + numberMod)
 
-			--TODO make this work when moving left
 			if actionType == "delete" then
+				temp = global.getCurLine()
 				if numberMod < 0 then
-
+					temp = string.reverse( temp )
+					-- TODO cases in the far edge of the string
+					curX = string.len( temp ) - curX + 2
 				end
-				global.setCurLine( 
-					string.sub( global.getCurLine(), 0, curX - 1 ) ..
-					string.sub( global.getCurLine(),
-								curX + numberMod))
+
+				local goal = curX + math.abs(numberMod)
+
+				local outString = 
+					string.sub( temp, 0, curX - 1 ) ..
+					string.sub( temp, goal )
+
+				if numberMod < 0 then
+					outString = string.reverse( outString )
+					move( "horiz", numberMod, "move", "n" )
+				end
+				global.setCurLine( outString )
+
 				if otherMod == "i" then
 					vimode.insert("here")
 				end
@@ -214,8 +224,7 @@ local function move( command, numberMod, actionType, otherMod )
 		
 	elseif command == "vert" then
 		if actionType == "delete" or actionType == "yank" then
-			--TODO (why do i know...) these thing
-			--local curY = global.getVar("currentLine")
+			--TODO (Why, why do i know...) these thing
 			local yankedString = ""
 
 			if actionType == "delete" then
@@ -298,11 +307,20 @@ function runViCommand( command )
 				  use, subMod)
 
 		elseif command[#command] == "^" then
+			local wsS, wsE = 
+			        string.find( global.getCurLine(), "%s+" )
+			if wsS ~= 1 then wsE = 0 end
 			move( "horiz",
-			      -(global.getVar("currentColumn") - 1),
+				  -(global.getVar("currentColumn") - (wsE + 1)),
 				  use, subMod)
 
-		
+		elseif command[#command] == "0" and
+		       tonumber(command[#command - 1]) == nil then
+			move( "horiz",
+			      -(global.getVar("currentColumn") - 1),
+				  use, subMod )
+
+
 		-- TODO rewrite this to translate it into a number of horizontal steps
 		elseif command[#command] == "w" or command[#command] == "W" then
 			for i=1, number2 do

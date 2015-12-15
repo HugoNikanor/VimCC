@@ -26,7 +26,7 @@ end
 function setVar(key, value)
 	local temp = globals[key]
 	if temp == nil then
-		error("set:no such key: " .. key)
+		error( "set:no such key: " .. key )
 	end
 	if value == nil then
 		error( "you forgot the value: " .. key )
@@ -51,6 +51,7 @@ end
 function getCurLine()
 	return lines[globals["currentLine"]];
 end
+
 function setCurLine( text )
 	lines[globals["currentLine"]] = text
 end
