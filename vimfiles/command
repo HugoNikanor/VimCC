@@ -190,17 +190,21 @@ local function move( command, numberMod, actionType, otherMod )
 
 			--TODO make this work when moving left
 			if actionType == "delete" then
+				if numberMod < 0 then
+
+				end
 				global.setCurLine( 
-					string.sub( global.getCurLine(), 0, curX - 1) ..
+					string.sub( global.getCurLine(), 0, curX - 1 ) ..
 					string.sub( global.getCurLine(),
-					            curX + numberMod))
+								curX + numberMod))
 				if otherMod == "i" then
 					vimode.insert("here")
 				end
 			 end
 
 		else -- simple move
-			local xAfter = global.getVar("currentColumn") + numberMod
+			local xBefore = global.getVar("currentColumn")
+			local xAfter = xBefore + numberMod
 			if xAfter < 1 then xAfter = 1 end
 			if xAfter > string.len(global.getCurLine()) then
 				xAfter = string.len(global.getCurLine()) end
