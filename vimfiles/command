@@ -165,7 +165,7 @@ local function move( command, numberMod, actionType, otherMod )
 	if command == "delEol" then
 		local nextLine = global.getVar("currentLine") + 1
 		local mSpace
-		if subMod == "space" then mSpace = " " else mSpace = "" end
+		if otherMod == "space" then mSpace = " " else mSpace = "" end
 		if global.getLine(nextLine) ~= nil then
 			global.setCurLine( 
 				global.getCurLine() .. 
@@ -377,8 +377,12 @@ function runViCommand( command )
 			end
 
 		elseif command[#command] == "D" then
+			local lLoop = number1 * number2
+			number1 = 1
+			for i=2, lLoop do
+				move( "delEol", 1, "delEol", "noSpace" )
+			end
 			goToEndOfLine( "delete" )
-
 
 
 		elseif command[#command] == "i" then
