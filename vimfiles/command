@@ -175,6 +175,7 @@ local function move( command, numberMod, actionType, otherMod )
 		end
 
 	elseif command == "horiz" then
+		if string.len( global.getCurLine() ) == 0 then return end
 		if actionType == "delete" or actionType == "yank" then
 			local curX = global.getVar("currentColumn")
 
@@ -215,8 +216,12 @@ local function move( command, numberMod, actionType, otherMod )
 		
 	elseif command == "vert" then
 		if actionType == "delete" or actionType == "yank" then
-			--TODO (Why, why do i know...) these thing
-
+			for i=1, numberMod do
+				-- TODO yank
+				goToStart( "delete", "line" )
+				doToEndOfLine( "delete" )
+				move( "delEol", 1, "delEol", "n" )
+			end
 		else
 			cursorVerticalMove( numberMod )
 		end
@@ -255,6 +260,7 @@ function runViCommand( command )
 		commandSub[i] = command[i]
 	end
 	local otherMod, number1, number2 = parseViCommand( commandSub );
+	local numMod = number1 * number2
 
 	logger.info(" n1: " .. number1)
 	logger.info(" n2: " .. number2) -- n2 isn't used...
@@ -277,12 +283,12 @@ function runViCommand( command )
 		use = "move"
 	end
 
-	for number1Loop=1, number1 do
+	--for number1Loop=1, number1 do
 		if command[#command] == "f" or 
 		   command[#command] == "t" then
 		   local event, keyToFind = os.pullEvent("char")
 
-		   for i=1, number2 do
+		   for i=1, numMod do
 				local tempX = string.find(global.getLine(
 					global.getVar("currentLine")), keyToFind, global.getVar("currentColumn") + 1)
 				if tempX ~= nil then
@@ -294,17 +300,18 @@ function runViCommand( command )
 			end
 				
 		elseif command[#command] == "l" then
-			move( "horiz", number2, use, subMod )
+			move( "horiz", numMod, use, subMod )
 				
 		elseif command[#command] == "h" then
-			move( "horiz", -number2, use, subMod )
+			move( "horiz", -numMod, use, subMod )
 				
 		elseif command[#command] == "j" then
-			move( "vert", number2, use, subMod )
+			move( "vert", numMod, use, subMod )
 
 		elseif command[#command] == "k" then
-			move( "vert", -number2, use, subMod )
+			move( "vert", -numMod, use, subMod )
 
+		-- TODO '$' and '^' have problems on empty lines
 		elseif command[#command] == "$" then
 			goToEndOfLine( "move" )
 
@@ -317,7 +324,7 @@ function runViCommand( command )
 
 
 		elseif command[#command] == "w" or command[#command] == "W" then
-			for i=1, number2 do
+			for i=1, numMod do
 				local tXS =
 					string.find(global.getCurLine(), "%s", global.getVar("currentColumn"))
 					or string.len(global.getCurLine())
@@ -327,7 +334,7 @@ function runViCommand( command )
 		
 		-- 'de' delets one character to little
 		elseif command[#command] == "e" or command[#command] == "E" then
-			for i=1, number2 do
+			for i=1, numMod do
 				local tXS =
 					string.find(global.getCurLine(), "%s", global.getVar("currentColumn") + 2)
 					or string.len(global.getCurLine())
@@ -336,8 +343,9 @@ function runViCommand( command )
 			end
 
 		-- this maybe should be written a bit more recursivly
+		-- TODO trouble going to the first character of a line
 		elseif command[#command] == "b" or command[#command] == "B" then
-			for i=1, number2 do
+			for i=1, numMod do
 				local tempLine = string.reverse(global.getCurLine())
 				local tXS =
 					string.find(tempLine, "%s", string.len(tempLine) - global.getVar("currentColumn") + 2)
@@ -356,18 +364,18 @@ function runViCommand( command )
 
 
 		elseif command[#command] == "x" then
-			move( "horiz", number2, "delete", subMod )
+			move( "horiz", numMod, "delete", subMod )
 		elseif command[#command] == "X" then
-			move( "horiz", -number2, "delete", subMod )
+			move( "horiz", -numMod, "delete", subMod )
 		
 
 
 		elseif command[#command] == "J" then
-			move( "delEol", number2, "delEol", "space" )
+			move( "delEol", numMod, "delEol", "space" )
 
 		elseif command[#command] == "d" then
 			if otherMod == "d" then
-				for i=1, number2 do
+				for i=1, numMod do
 					goToStart( "move", "line" )
 					goToEndOfLine( "delete" )
 					move( "delEol", 1, "delEol", "noSpace" )
@@ -377,17 +385,13 @@ function runViCommand( command )
 			end
 
 		elseif command[#command] == "D" then
-			local lLoop = number1 * number2
-			number1 = 1
-			for i=2, lLoop do
+			for i=2, numMod do
 				move( "delEol", 1, "delEol", "noSpace" )
 			end
 			goToEndOfLine( "delete" )
 
 		elseif command[#command] == "C" then
-			local lLoop = number1 * number2
-			number1 = 1
-			for i=2, lLoop do
+			for i=2, numMod do
 				move( "delEol", 1, "delEol", "noSpace" )
 			end
 			goToEndOfLine( "delete" )
@@ -424,7 +428,7 @@ function runViCommand( command )
 			-- for every possible command
 			triggered = false
 		end
-	end
+	--end
 
 
 	screen.redraw()
@@ -452,7 +456,7 @@ function runExCommand( command )
 			global.setVar("running", false)
 		end
 	end
-	function fun.b()
+	fun["!"] = function()
 		global.setVar("running", false)
 	end
 	function fun.w()
