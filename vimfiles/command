@@ -432,24 +432,35 @@ function runViCommand( command )
 end
 
 local function parseExCommand( text ) 
+	local len = string.len(text)
+	local value = {}
+	for i=1, #text do
+		value[i] = text:sub(i, i)
+	end
+	return value
 end
 
 function runExCommand( command )
-	if command == "q" then
+	local cmd = parseExCommand( command )
+
+	local fun = {}
+
+	function fun.q()
 		if global.getVar("hasChanged") then
 			screen.printErrMsg("No write since last change, ! to override")
 		else
 			global.setVar("running", false)
 		end
 	end
-	if command == "q!" then
+	function fun.b()
 		global.setVar("running", false)
 	end
-	if command == "w" then
+	function fun.w()
 		file.write()
 	end
-	if command == "wq" then
-		file.write()
-		global.setVar("running", false)
+
+	for i=1, #cmd do
+		screen.printErrMsg(cmd[i])
+		fun[cmd[i]]()
 	end
 end

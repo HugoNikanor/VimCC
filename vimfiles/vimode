@@ -169,7 +169,7 @@ function normalMode()
 		end
 		if event == "char" then
 			if key == ":" then
-				local cmd = vimode.commandMode()
+				local cmd = commandMode()
 				command.runExCommand( cmd )
 				keyPresses = {}
 			end
