@@ -162,11 +162,21 @@ function normalMode()
 	while global.getVar("running") do
 		local event, key = os.pullEvent()
 
+		if event == "key" then
+			if key == keys.tab then
+				keyPresses = {}
+			end
+		end
 		if event == "char" then
+			if key == ":" then
+				local cmd = vimode.commandMode()
+				command.runExCommand( cmd )
+				keyPresses = {}
+			end
 
 			keyPresses[#keyPresses + 1] = key
 
-			local triggered = command.runViCommand( keyPresses, cursorX, cursorY )
+			local triggered = command.runViCommand( keyPresses )
 
 			if triggered then
 				keyPresses = {}

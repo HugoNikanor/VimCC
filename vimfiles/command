@@ -416,16 +416,7 @@ function runViCommand( command )
 		elseif command[#command] == "O" then
 			vimode.insertMode("prevline")
 
-
-
 		
-
-
-		
-		elseif command[#command] == ":" then
-			local command = vimode.commandMode()
-			runExCommand( command )
-
 
 		else
 			-- if nothing happened then triggered sholud be false
@@ -446,10 +437,7 @@ end
 function runExCommand( command )
 	if command == "q" then
 		if global.getVar("hasChanged") then
-			term.setCursorPos(1, global.getVar("termY"))
-			term.setBackgroundColour( colors.red )
-			term.write("No write since last change, ! to override")
-			term.setBackgroundColour( colors.black )
+			screen.printErrMsg("No write since last change, ! to override")
 		else
 			global.setVar("running", false)
 		end

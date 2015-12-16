@@ -1,5 +1,5 @@
 function redraw()
-	term.clear()
+	--term.clear()
 	term.setCursorPos(1, 1)
 
 	local topLine = global.getVar("topLine")
@@ -13,6 +13,7 @@ function redraw()
 	-- This is a while loop to be able to do the check is go around
 	local i=topLine
 	while i <= topLine + global.getVar("termY") - 2 - lineskip do
+		term.clearLine()
 		local tLine = global.getLine(i)
 		if tLine ~= nil then
 			for l=1, string.len(tLine) do
@@ -38,6 +39,14 @@ function redraw()
 		io.write("\n")
 		i = i + 1
 	end
+end
+
+-- for messages shown at the bottom of the screen
+function printErrMsg( message )
+	term.setCursorPos(1, global.getVar("termY"))
+	term.setBackgroundColour( colors.red )
+	term.write( message )
+	term.setBackgroundColour( colors.black )
 end
 
 -- returns false if line couldn't be redrawn
