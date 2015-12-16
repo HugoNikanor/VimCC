@@ -74,12 +74,12 @@ function drawLine( lineNo )
 end
 
 function debug(message)
-	term.setCursorPos(global.getVar("termX") - 5,
-	                  global.getVar("termY") - 1)
+	term.setCursorPos(global.getVar("termX") - string.len(message) + 1,
+	                  global.getVar("termY"))
 	if message==nil then
-		print("nil")
+		term.write("nil")
 	else
-		print(message)
+		term.write(message)
 	end
 	os.pullEvent("key")
 end

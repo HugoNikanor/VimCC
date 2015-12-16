@@ -248,9 +248,6 @@ end
 -- command should be a 'char' array
 --
 -- returns if the command triggered something
--- 
--- This could be optimized by placing the commands in the order
--- most often used. Please don't do this
 function runViCommand( command )
 	-- This is so that a command is't otherMod of itself
 	local commandSub = {}
@@ -319,41 +316,43 @@ function runViCommand( command )
 			goToStart( use, "line" )
 
 
-		-- TODO rewrite this to translate it into a number of horizontal steps
 		elseif command[#command] == "w" or command[#command] == "W" then
 			for i=1, number2 do
-				local tXS, tXE = string.find(global.getCurLine(), "%s", global.getVar("currentColumn"))
-				if  tXS ~= nil then
-					global.setVar("currentColumn", tXS + 1)
-				else
-					global.setVar("currentColumn", string.len(global.getCurLine()))
-				end
+				local tXS =
+					string.find(global.getCurLine(), "%s", global.getVar("currentColumn"))
+					or string.len(global.getCurLine())
+				tXS = tXS - global.getVar("currentColumn") + 1
+				move( "horiz", tXS, use, otherMod )
 			end
 		
+		-- 'de' delets one character to little
 		elseif command[#command] == "e" or command[#command] == "E" then
 			for i=1, number2 do
-				local tXS, tXE = string.find(global.getCurLine(), "%s", global.getVar("currentColumn") + 2)
-				if  tXS ~= nil then
-					global.setVar("currentColumn", tXS - 1)
-				else
-					global.setVar("currentColumn", string.len(global.getCurLine()))
+				local tXS =
+					string.find(global.getCurLine(), "%s", global.getVar("currentColumn") + 2)
+					or string.len(global.getCurLine())
+				tXS = tXS - global.getVar("currentColumn") - 1
+				move( "horiz", tXS, use, otherMod )
+			end
+
+		-- this maybe should be written a bit more recursivly
+		elseif command[#command] == "b" or command[#command] == "B" then
+			for i=1, number2 do
+				local tempLine = string.reverse(global.getCurLine())
+				local tXS =
+					string.find(tempLine, "%s", string.len(tempLine) - global.getVar("currentColumn") + 2)
+					or string.len(tempLine)
+				tXS = string.len(tempLine) - tXS - global.getVar("currentColumn") + 2
+				if tXS == 0 then
+					move( "horiz", -1, use, "n" )
+					tXS =
+						string.find(tempLine, "%s", string.len(tempLine) - global.getVar("currentColumn") + 2)
+						or string.len(tempLine)
+					tXS = string.len(tempLine) - tXS - global.getVar("currentColumn") + 2
 				end
+				move( "horiz", tXS, use, otherMod )
 			end
 		
-		--[[
-		elseif command[#command] == "b" or command[#command] == "B" then
-			local tempX
-			local line = global.getCurLine()
-			local tXS, tXE = string.find( string.reverse(line), "%s", 
-				string.len(line) - cursorX - 1)
-				-- Aga|Thi wor -- 11
-				-- orw ihT|agA
-			if  tXS ~= nil then
-				cursorX = string.len(line) - tXS + 2
-			else
-				cursorX = 1
-			end
-		]]
 
 
 		elseif command[#command] == "x" then
@@ -361,6 +360,7 @@ function runViCommand( command )
 		elseif command[#command] == "X" then
 			move( "horiz", -number2, "delete", subMod )
 		
+
 
 		elseif command[#command] == "J" then
 			move( "delEol", number2, "delEol", "space" )
@@ -383,6 +383,15 @@ function runViCommand( command )
 				move( "delEol", 1, "delEol", "noSpace" )
 			end
 			goToEndOfLine( "delete" )
+
+		elseif command[#command] == "C" then
+			local lLoop = number1 * number2
+			number1 = 1
+			for i=2, lLoop do
+				move( "delEol", 1, "delEol", "noSpace" )
+			end
+			goToEndOfLine( "delete" )
+			vimode.insertMode("here")
 
 
 		elseif command[#command] == "i" then
