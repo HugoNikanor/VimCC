@@ -26,6 +26,7 @@ function redraw()
 				if l % global.getVar("termX") == 0 then
 					lineskip = lineskip + 1
 					io.write("\n")
+					term.clearLine()
 				end
 			end
 			-- if inputing data at the end of the line
@@ -82,7 +83,7 @@ function drawLine( lineNo )
 	end
 end
 
-function debug(message)
+function debug( message )
 	term.setCursorPos(global.getVar("termX") - string.len(message) + 1,
 	                  global.getVar("termY"))
 	if message==nil then

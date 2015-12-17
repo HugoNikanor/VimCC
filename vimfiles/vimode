@@ -58,6 +58,8 @@ function insertMode(pos)
 	local strBefore
 	local strAfter
 
+	global.setVar("hasChanged", true)
+
 
 	if pos == "here" then
 	elseif pos == "after" then

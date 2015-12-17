@@ -1,0 +1,125 @@
+-- Saving --
+ZZ [ ] - save and exit
+ZQ [ ] - force quit
+
+-- Insert mode --
+a [/] - append char (lacks repeat function)
+A [/] - append line (lacks repeat function)
+i [/] - insert (lacks repeat function)
+I [/] - insert at beginning (lacks repeat function)
+o [/] - newLine (lacks repeat function)
+O [/] - newLine above (lacks repeat function)
+gI[ ] - ok...
+
+-- Deletion --
+x [X] - del char
+X [/] - del prev (possible edge bug)
+d{mot} [/] - will be done when all motions are done
+
+                
+                
+
+=== Lacking features ===
+r - replace
+R - replace mode (insert with override)
+~ - switch case
+~ { motion }
+
+zz \
+zt  |- move screen to match cursor
+zb /
+
+
+gg
+5gg
+5G
+
+
+
+
+
+
+
+
+
+
+
+---
+
+The stuff below is taken fram a draft i did in the code, don't pay to much 
+attention to it
+
+---
+ 
+ command is how the cusor should move, among a few other things
+		horiz
+		vert
+		delEol - delete end of line 'J'
+
+	These can be called with the following keys:
+		h, j, k, l
+		0, ^, $
+		w, W, e, E, b, B
+		f, F, t, T
+		(, ), {, }, [[, ]], []
+ numberMod is how many time the move command should be repeated
+ otherMod if anything should be done while moving the cursor
+		y, Y
+		d, D
+		c, C
+		x, X
+		~
+
+ Please notice that all of these commands can't stack
+
+ Almost no commands wrap around lines
+
+ All commands take a numberMod and a move command unless
+ otherwise stated.
+
+
+
+ M O V E S
+ h, move left
+ l, move right
+ j, mode down
+ k, move up
+
+ ^, move left until start of text
+ 0, move left until start of line
+ $, move right until end of line
+
+ w, move right until start of next word
+ W, move right until after next space
+ e, move right until end of current word
+ E, move right up to the next space 
+ b, move left to start of current word
+ B, move left until preceeding space
+
+	All these takes one extra argument, to know what to find
+ f, move left until cursor is on a selected character
+ F, move right until cursor is on a selected character
+ t, move left until cunros is on the character before the selected character
+ T, move right until cunros is on the character before the selected character
+
+ (, ), ... 	These have to do with jumping sections, 
+	but otherwise they work as normal move commands
+
+ O T H E R _ M O D
+	Some of these have special cases where their function can differ on things
+	not related to move commands. (dd deletes the current line, for example)
+
+ y, copy characters moved over
+ Y, copy current line, doesn't take move commands
+ d, cut charactors moved over
+ D, cut from current column until end of line, doesn't take move commands
+ c, like 'd', but enters insert mode afterwards
+ D, lide 'D', but enters insert mode afterwards 
+
+ x, delete 'numberMod' characters forwards. Doesn't take move commands
+ X, delete 'numberMod' characters backwards. Doesn't take move commands
+ ~, change case for upcomming 'numberMod' characters. Doesn't take move commands
+
+
+
+

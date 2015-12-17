@@ -89,90 +89,29 @@ local function cursorVerticalMove( numberMod )
 		end
 		global.setVar("currentColumn", curX)
 end
-
+goToStart = nil
+goToEndOfLine = nil
 local function move( command, numberMod, actionType, otherMod )
-	-- command is how the cusor should move, among a few other things
-	-- 		horiz
-	-- 		vert
-	-- 		delEol - delete end of line 'J'
-	--
-	--	These can be called with the following keys:
-	-- 		h, j, k, l
-	-- 		0, ^, $
-	-- 		w, W, e, E, b, B
-	-- 		f, F, t, T
-	-- 		(, ), {, }, [[, ]], []
-	-- numberMod is how many time the move command should be repeated
-	-- otherMod if anything should be done while moving the cursor
-	-- 		y, Y
-	-- 		d, D
-	-- 		c, C
-	-- 		x, X
-	-- 		~
-	--
-	-- Please notice that all of these commands can't stack
-	--
-	-- Almost no commands wrap around lines
-	--
-	-- All commands take a numberMod and a move command unless
-	-- otherwise stated.
-	--
-	--
-	--
-	-- M O V E S
-	-- h, move left
-	-- l, move right
-	-- j, mode down
-	-- k, move up
-	--
-	-- ^, move left until start of text
-	-- 0, move left until start of line
-	-- $, move right until end of line
-	--
-	-- w, move right until start of next word
-	-- W, move right until after next space
-	-- e, move right until end of current word
-	-- E, move right up to the next space 
-	-- b, move left to start of current word
-	-- B, move left until preceeding space
-	--
-	--	All these takes one extra argument, to know what to find
-	-- f, move left until cursor is on a selected character
-	-- F, move right until cursor is on a selected character
-	-- t, move left until cunros is on the character before the selected character
-	-- T, move right until cunros is on the character before the selected character
-	--
-	-- (, ), ... 	These have to do with jumping sections, 
-	-- 	but otherwise they work as normal move commands
-	--
-	-- O T H E R _ M O D
-	-- 	Some of these have special cases where their function can differ on things
-	-- 	not related to move commands. (dd deletes the current line, for example)
-	--
-	-- y, copy characters moved over
-	-- Y, copy current line, doesn't take move commands
-	-- d, cut charactors moved over
-	-- D, cut from current column until end of line, doesn't take move commands
-	-- c, like 'd', but enters insert mode afterwards
-	-- D, lide 'D', but enters insert mode afterwards 
-	--
-	-- x, delete 'numberMod' characters forwards. Doesn't take move commands
-	-- X, delete 'numberMod' characters backwards. Doesn't take move commands
-	-- ~, change case for upcomming 'numberMod' characters. Doesn't take move commands
 
 
 	-- merges current line with the next line, removes that line ('J')
+	if otherMod == "delete" then
+		global.setVar("hasChanged", true)
+	end
 	if command == "delEol" then
-		local nextLine = global.getVar("currentLine") + 1
-		local mSpace
-		if otherMod == "space" then mSpace = " " else mSpace = "" end
-		if global.getLine(nextLine) ~= nil then
-			global.setCurLine( 
-				global.getCurLine() .. 
-				mSpace ..
-				global.getLine( nextLine ))
-			global.removeLine( nextLine )
+		for i=1, numberMod do
+			local nextLine = global.getVar("currentLine") + 1
+			local mSpace
+			if otherMod == "space" then mSpace = " " else mSpace = "" end
+			if global.getLine(nextLine) ~= nil then
+				global.setCurLine( 
+					global.getCurLine() .. 
+					mSpace ..
+					global.getLine( nextLine ))
+				global.removeLine( nextLine )
+			end
 		end
+		global.setVar("hasChanged", true)
 
 	elseif command == "horiz" then
 		if string.len( global.getCurLine() ) == 0 then return end
@@ -216,17 +155,17 @@ local function move( command, numberMod, actionType, otherMod )
 		
 	elseif command == "vert" then
 		if actionType == "delete" or actionType == "yank" then
-			for i=1, numberMod do
-				-- TODO yank
-				--
-				-- If numberMod if negative, go up that many lines and
-				-- then delete downwards.
-				-- Make sure that to many lines aren't deleted if the user
-				-- goes up above line 1
-				goToStart( "delete", "line" )
-				doToEndOfLine( "delete" )
-				move( "delEol", 1, "delEol", "n" )
+			if numberMod < 0 then
+				if -numberMod > global.getVar("currentLine") then
+					numberMod = -(global.getVar("currentLine") - 1)
+				end
+				move( "vert", numberMod, "move", "n" )
 			end
+			goToStart( "move", "line" )
+			move( "delEol", math.abs(numberMod), "delEol", "n" )
+
+			goToEndOfLine( "delete" )
+			move( "delEol", 1, "delEol", "n" )
 		else
 			cursorVerticalMove( numberMod )
 		end
@@ -234,14 +173,15 @@ local function move( command, numberMod, actionType, otherMod )
 	screen.redraw()
 end
 
-local function goToEndOfLine( actionType )
+goToEndOfLine = function( actionType )
 	move( 
 		"horiz", 
 		  string.len(global.getCurLine()) - global.getVar("currentColumn") + 1,
 		  actionType, "n")
 end
 
-local function goToStart( actionType, location )
+-- this needs to be non local for it to work, maybe, perhaps. I have just given up
+goToStart = function( actionType, location )
 	-- location can be ( line | text )
 	local wsS, wsE = 
 		string.find( global.getCurLine(), "%s+" )
@@ -288,20 +228,29 @@ function runViCommand( command )
 		use = "move"
 	end
 
-	--for number1Loop=1, number1 do
+		-- Both of these delete one character to little
 		if command[#command] == "f" or 
 		   command[#command] == "t" then
 		   local event, keyToFind = os.pullEvent("char")
 
-		   for i=1, numMod do
-				local tempX = string.find(global.getLine(
-					global.getVar("currentLine")), keyToFind, global.getVar("currentColumn") + 1)
-				if tempX ~= nil then
-					global.setVar("currentColumn", tempX)
-				end
-			end
+
+			local tMod
 			if command[#command] == "t" then
-				global.setVar("currentColumn", global.getVar("currentColumn") - 1)
+				tMod = 1/numMod
+			else
+				tMod = 0
+			end
+			for i=1, numMod do
+				local startPos = 
+					math.min(global.getVar("currentColumn") + 1,
+					         string.len(global.getCurLine()))
+				local tempX = string.find(
+					global.getCurLine(),
+					keyToFind,
+					startPos ) - 
+					global.getVar("currentColumn") - 
+					numMod * tMod or 0
+				move( "horiz", tempX, use, "n" )
 			end
 				
 		elseif command[#command] == "l" then
@@ -316,7 +265,6 @@ function runViCommand( command )
 		elseif command[#command] == "k" then
 			move( "vert", -numMod, use, subMod )
 
-		-- TODO '$' and '^' have problems on empty lines
 		elseif command[#command] == "$" then
 			goToEndOfLine( use )
 
