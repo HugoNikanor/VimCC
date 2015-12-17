@@ -252,7 +252,7 @@ local function goToStart( actionType, location )
 	end
 	move( "horiz",
 		  -(global.getVar("currentColumn") - (wsE + 1)),
-		  use, subMod)
+		  actionType, subMod)
 end
 
 -- command should be a 'char' array
@@ -318,7 +318,7 @@ function runViCommand( command )
 
 		-- TODO '$' and '^' have problems on empty lines
 		elseif command[#command] == "$" then
-			goToEndOfLine( "move" )
+			goToEndOfLine( use )
 
 		elseif command[#command] == "^" then
 			goToStart( use, "text" )
