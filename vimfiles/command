@@ -278,16 +278,16 @@ function runViCommand( command )
 
 		elseif command[#command] == "G" then
 			local moveDist
-			if numberMod == 1 then
-				moveDist = string.len(global.getCurLine()) - global.getVar("currentLine")
+			if numMod == 1 then
+				moveDist = global.getLength() - global.getVar("currentLine")
 			else
-				moveDist = numberMod - global.getVar("currentLine")
+				moveDist = numMod - global.getVar("currentLine")
 			end
 			move( "vert", moveDist, use, subMod )
 
 		elseif command[#command] == "g" and
 		       command[#command - 1] == "g" then
-				local moveDist = numberMod - global.getVar("currentLine")
+				local moveDist = numMod - global.getVar("currentLine")
 				move( "vert", moveDist, use, subMod )
 
 
