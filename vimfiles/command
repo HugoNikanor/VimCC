@@ -391,11 +391,19 @@ function runViCommand( command )
 
 		elseif command[#command] == "d" then
 			if otherMod == "d" then
-				for i=1, numMod do
-					goToStart( "move", "line" )
-					goToEndOfLine( "delete", "n" )
-					move( "delEol", 1, "delEol", "noSpace" )
-				end
+				goToStart( "move", "line" )
+				move( "delEol", numMod - 1, "delEol", "noSpace" )
+				goToEndOfLine( "delete", "n" )
+				move( "delEol", 1, "delEol", "noSpace" )
+			else
+				triggered = false
+			end
+			
+		elseif command[#command] == "c" then
+			if otherMod == "c" then
+				goToStart( "move", "line" )
+				move( "delEol", numMod - 1, "delEol", "noSpace" )
+				goToEndOfLine( "delete", "i" )
 			else
 				triggered = false
 			end
