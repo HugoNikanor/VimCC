@@ -164,7 +164,7 @@ local function move( command, numberMod, actionType, otherMod )
 			goToStart( "move", "line" )
 			move( "delEol", math.abs(numberMod), "delEol", "n" )
 
-			goToEndOfLine( "delete" )
+			goToEndOfLine( "delete", "n" )
 			move( "delEol", 1, "delEol", "n" )
 		else
 			cursorVerticalMove( numberMod )
@@ -173,11 +173,11 @@ local function move( command, numberMod, actionType, otherMod )
 	screen.redraw()
 end
 
-goToEndOfLine = function( actionType )
-	move( 
-		"horiz", 
-		  string.len(global.getCurLine()) - global.getVar("currentColumn") + 1,
-		  actionType, "n")
+goToEndOfLine = function( actionType, subMod )
+	move(
+		"horiz",
+		string.len(global.getCurLine()) - global.getVar("currentColumn") + 1,
+		actionType, subMod )
 end
 
 -- this needs to be non local for it to work, maybe, perhaps. I have just given up
@@ -266,7 +266,7 @@ function runViCommand( command )
 			move( "vert", -numMod, use, subMod )
 
 		elseif command[#command] == "$" then
-			goToEndOfLine( use )
+			goToEndOfLine( use, subMod )
 
 		elseif command[#command] == "^" then
 			goToStart( use, "text" )
@@ -330,6 +330,16 @@ function runViCommand( command )
 			end
 		
 
+		elseif command[#command] == "s" then
+			move( "horiz", numMod, "delete", "i" )
+
+
+		elseif command[#command] == "S" then
+			goToStart( "move", "line" )
+			move( "delEol", numMod - 1, "delEol", "n" )
+			goToEndOfLine( "delete", "i" )
+
+
 
 		elseif command[#command] == "x" then
 			move( "horiz", numMod, "delete", subMod )
@@ -345,7 +355,7 @@ function runViCommand( command )
 			if otherMod == "d" then
 				for i=1, numMod do
 					goToStart( "move", "line" )
-					goToEndOfLine( "delete" )
+					goToEndOfLine( "delete", "n" )
 					move( "delEol", 1, "delEol", "noSpace" )
 				end
 			else
@@ -356,13 +366,13 @@ function runViCommand( command )
 			for i=2, numMod do
 				move( "delEol", 1, "delEol", "noSpace" )
 			end
-			goToEndOfLine( "delete" )
+			goToEndOfLine( "delete", "n" )
 
 		elseif command[#command] == "C" then
 			for i=2, numMod do
 				move( "delEol", 1, "delEol", "noSpace" )
 			end
-			goToEndOfLine( "delete" )
+			goToEndOfLine( "delete", "n" )
 			vimode.insertMode("here")
 
 
