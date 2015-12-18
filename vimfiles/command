@@ -89,11 +89,12 @@ local function cursorVerticalMove( numberMod )
 		end
 		global.setVar("currentColumn", curX)
 end
+
 goToStart = nil
 goToEndOfLine = nil
+-- horizontal deletion delets one character less than the cursor moves,
+-- This is sometimes useful but most of the time not
 local function move( command, numberMod, actionType, otherMod )
-
-
 	-- merges current line with the next line, removes that line ('J')
 	if otherMod == "delete" then
 		global.setVar("hasChanged", true)
@@ -119,6 +120,7 @@ local function move( command, numberMod, actionType, otherMod )
 			local curX = global.getVar("currentColumn")
 
 			if actionType == "delete" then
+				-- Is there a reason for this not being local?
 				temp = global.getCurLine()
 				if numberMod < 0 then
 					temp = string.reverse( temp )
@@ -142,6 +144,18 @@ local function move( command, numberMod, actionType, otherMod )
 					vimode.insertMode("here")
 				end
 			 end
+
+		elseif actionType == "switchCase" then
+			local lowerCase = {
+				a, b, c, d, e, f, g, h, i, j, k, l, m,
+				n, o, p, q, r, s, t, u, v, w, x, y, z
+			}
+			local start = global.getVar("currentColumn")
+			local line = global.getCurLine()
+			for i=start, numberMod + start do
+				-- TODO figure out how to swtch case for a string
+			end
+
 
 		else -- simple move
 			local xBefore = global.getVar("currentColumn")
@@ -228,8 +242,28 @@ function runViCommand( command )
 		use = "move"
 	end
 
+		-- this is first since they keys that come after 'z'
+		-- is used in other commands
+		if otherMod == "z" then
+			local tLine
+			    if command[#command] == "z" then
+				tLine =
+					global.getVar("currentLine") -
+					math.floor(global.getVar("termY") / 2)
+			elseif command[#command] == "t" then
+				tLine = global.getVar("currentLine")
+			elseif command[#command] == "b" then
+				tLine =
+					global.getVar("currentLine") -
+					(global.getVar("termY") - 2)
+			end
+			if tLine ~= nil then
+				if tLine < 1 then tLine = 1 end
+				global.setVar("topLine", tLine)
+			end
+
 		-- Both of these delete one character to little
-		if command[#command] == "f" or 
+		elseif command[#command] == "f" or 
 		   command[#command] == "t" then
 		   local event, keyToFind = os.pullEvent("char")
 
@@ -339,6 +373,10 @@ function runViCommand( command )
 			move( "delEol", numMod - 1, "delEol", "n" )
 			goToEndOfLine( "delete", "i" )
 
+		--elseif command[#command] == "~" then
+		--	TODO figure out how to make this work
+		--	move( "horiz", numMod, "switchCase", "n" )
+
 
 
 		elseif command[#command] == "x" then
@@ -374,6 +412,7 @@ function runViCommand( command )
 			end
 			goToEndOfLine( "delete", "n" )
 			vimode.insertMode("here")
+
 
 
 		elseif command[#command] == "i" then
