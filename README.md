@@ -1,8 +1,7 @@
 # VimCC
 
 ## Currently unsupported features that would be nice to have
-**Ex commands!**
-
+- **Ex commands!**
 - cc
 - ~
 - ZZ, ZQ
