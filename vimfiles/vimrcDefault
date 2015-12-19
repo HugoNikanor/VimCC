@@ -1,0 +1,29 @@
+-- DEFAULT VIMRC FILE FOR ccVim.
+-- I WOULD STRONGLY RECOMMEND AGAINST EDITING THIS FILE,
+-- SINCE IF THE PROGRAM WILL CRASH IF A VALUE HERE IS
+-- MISSING OR INCORRECT.
+-- A PERSONAL CONFIG FILE CAN BE CREATED IN '/.vimrc'
+-- THAT FILE CAN'T HAVE ANY INCORRECT VALUES, BUT FIELDS
+-- NOT NEEDED CAN JUST BE LEFT OUT FROM THAT FILE.
+--
+-- THIS FILE AND YOUR LOCAL .vimrc IS RUN AS CODE WHEN VIM
+-- STARTS, THE VARIABLES SET IS THEN LATER USED IN OTHER
+-- PARTS OF THE PROGRAM
+
+
+--[[ LOG LEVEL
+Possible values:
+	ALL
+	WARNINGS
+	NONE
+]]--
+logLevel = "ALL"
+
+--[[ ESCAPE BUTTON
+Possible values:
+	anything found in the keys api
+	http://www.comuptercraft.info/wiki/Keys_(API)
+	But I would recommend against taking a key used for something else...
+]]--
+escBtn = keys.tab
+

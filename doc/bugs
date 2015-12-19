@@ -1,0 +1,3 @@
+'ce' doesn't enter insert mode
+
+'dd' at the end of the file doesn't delete the line

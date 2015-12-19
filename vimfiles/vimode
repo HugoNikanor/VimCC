@@ -19,8 +19,7 @@ function commandMode()
 				return command
 			end
 
-			-- tab is escape
-			if key == keys.tab then
+			if key == config.get("escBtn") then
 				term.clearLine()
 				running = false
 			end
@@ -48,10 +47,6 @@ function commandMode()
 end
 
 -- pos: where should insert mode be entered in realtion to the cursor
--- 		here
--- 		beginning
--- 		after
--- 		end
 function insertMode(pos)
 	os.sleep(0.1)
 
@@ -69,7 +64,7 @@ function insertMode(pos)
 	elseif pos == "0" then
 		global.setVar("currentColumn", 1)
 	elseif pos == "end" then
-		global.setVar("currentColumn", string.len(global.getLine(global.getVar("currentColumn"))) + 1)
+		global.setVar("currentColumn", string.len(global.getCurLine()) + 1)
 	elseif pos == "newline" then
 		global.setVar("hasChanged", true)
 		global.setVar("currentLine", global.getVar("currentLine") + 1)
@@ -92,8 +87,7 @@ function insertMode(pos)
 	while true do
 		if event == "key" then
 
-			-- tab is escape
-			if key == keys.tab then
+			if key == config.get("escBtn") then
 				-- the cursor can be one step to far to the right
 				-- this happens when appending text to a line
 				local strLen = string.len(global.getCurLine())
@@ -165,7 +159,7 @@ function normalMode()
 		local event, key = os.pullEvent()
 
 		if event == "key" then
-			if key == keys.tab then
+			if key == config.get("escBtn") then
 				keyPresses = {}
 			end
 		end

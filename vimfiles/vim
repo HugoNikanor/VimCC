@@ -1,5 +1,6 @@
 local apiPath = "/utils/vimfiles/"
 local apis = {
+	"config",
 	"global",
 	"command",
 	"screen",
@@ -59,17 +60,18 @@ screen.redraw()
 if not fs.isDir("/.vimlog") then
 	fs.makeDir("/.vimlog")
 end
-logger.init("/.vimlog/vimlog-"..os.day().."-"..os.time(), logger.logLevel.ALL)
+logger.init("/.vimlog/vimlog-"..os.day().."-"..os.time(), config.get("logLevel"))
 logger.info("log file created")
 
 
 vimode.normalMode()
 
 
-
-
+-- Apparently you don't have to unload the api's if they are loaded localy
+--[[
 for i=1, #apis do
 	os.unloadAPI(apiPath..apis[i])
 end
+]]
 term.setCursorPos(1, 1)
 term.clear()

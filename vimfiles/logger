@@ -3,13 +3,16 @@ local file
 logLevel = {
 	ALL = "ALL",
 	WARNINGS = "WARNINGS",
+	NONE = "NONE"
 }
 local level
 
 function init( path, llevel )
-	filename = path
-	level = llevel
-	file = fs.open(filename, "a")
+	if llevel ~= "NONE" then
+		filename = path
+		level = llevel
+		file = fs.open(filename, "a")
+	end
 end
 
 function info( message )

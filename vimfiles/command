@@ -331,7 +331,7 @@ function runViCommand( command )
 					string.find(global.getCurLine(), "%s", global.getVar("currentColumn"))
 					or string.len(global.getCurLine())
 				tXS = tXS - global.getVar("currentColumn") + 1
-				move( "horiz", tXS, use, otherMod )
+				move( "horiz", tXS, use, sumMod )
 			end
 		
 		-- 'de' delets one character to little
@@ -341,7 +341,7 @@ function runViCommand( command )
 					string.find(global.getCurLine(), "%s", global.getVar("currentColumn") + 2)
 					or string.len(global.getCurLine())
 				tXS = tXS - global.getVar("currentColumn") - 1
-				move( "horiz", tXS, use, otherMod )
+				move( "horiz", tXS, use, subMod )
 			end
 
 		-- this maybe should be written a bit more recursivly
@@ -360,7 +360,7 @@ function runViCommand( command )
 						or string.len(tempLine)
 					tXS = string.len(tempLine) - tXS - global.getVar("currentColumn") + 2
 				end
-				move( "horiz", tXS, use, otherMod )
+				move( "horiz", tXS, use, subMod )
 			end
 		
 
@@ -453,7 +453,6 @@ function runViCommand( command )
 			-- for every possible command
 			triggered = false
 		end
-	--end
 
 
 	screen.redraw()
