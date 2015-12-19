@@ -265,7 +265,7 @@ function runViCommand( command )
 			end
 
 		elseif command[#command] == "f" or 
-		   command[#command] == "t" then
+		       command[#command] == "t" then
 		   local event, keyToFind = os.pullEvent("char")
 
 
@@ -366,7 +366,7 @@ function runViCommand( command )
 		
 
 		elseif command[#command] == "s" then
-			move( "horiz", numMod, "delete", "i" )
+			move( "horiz", numMod - 1, "delete", "i" )
 
 
 		elseif command[#command] == "S" then
@@ -381,9 +381,9 @@ function runViCommand( command )
 
 
 		elseif command[#command] == "x" then
-			move( "horiz", numMod, "delete", subMod )
+			move( "horiz", numMod - 1, "delete", subMod )
 		elseif command[#command] == "X" then
-			move( "horiz", -numMod, "delete", subMod )
+			move( "horiz", -numMod - 1, "delete", subMod )
 		
 
 
@@ -422,6 +422,23 @@ function runViCommand( command )
 			goToEndOfLine( "delete", "n" )
 			vimode.insertMode("here")
 
+		elseif command[#command] == "r" then
+			local ev, repl = os.pullEvent("char")
+			move( "horiz", numMod - 1, "delete", subMod )
+			local tempString = 
+				string.sub(
+					global.getCurLine(),
+					1,
+					global.getVar("currentColumn") - 1)
+			for i=1, numMod do
+				tempString = tempString .. repl
+			end
+			tempString = tempString .. string.sub(
+				global.getCurLine(),
+				global.getVar("currentColumn"),
+				string.len(global.getCurLine()))
+			global.setCurLine( tempString )
+			
 
 
 		elseif command[#command] == "i" then
@@ -445,6 +462,14 @@ function runViCommand( command )
 
 		elseif command[#command] == "O" then
 			vimode.insertMode("prevline")
+
+		elseif otherMod == "Z" then
+			if command[#command] == "Z" then
+				file.write()
+				global.setVar( "running", false )
+			elseif command[#command] == "Q" then
+				global.setVar( "running", false )
+			end
 
 		
 
