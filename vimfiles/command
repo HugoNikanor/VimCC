@@ -342,25 +342,23 @@ function runViCommand( command )
 				move( "horiz", tXS, use, subMod )
 			end
 
-		-- this maybe should be written a bit more recursivly
-		-- TODO trouble going to the first character of a line
 		elseif command[#command] == "b" or command[#command] == "B" then
 			for i=1, numMod do
 				local tempLine = string.reverse(global.getCurLine())
 				local tXS =
-					string.find(tempLine, "%s", string.len(tempLine) - global.getVar("currentColumn") + 2)
-					or string.len(tempLine)
-				tXS = string.len(tempLine) - tXS - global.getVar("currentColumn") + 2
+					string.find(tempLine, "%s", string.len(tempLine) - global.getVar("currentColumn") + 1)
+					or string.len(tempLine) + 1
+				local moveDist = string.len(tempLine) - tXS - global.getVar("currentColumn") + 2
 				-- this is used if the character directly behind the cursor is a space
 				-- Then the cursor should jump to the next (previous) word
-				if tXS == 0 then
+				if moveDist == 0 and tXS ~= string.len(tempLine) + 1 then
 					move( "horiz", -1, use, "n" )
-					tXS =
+					moveDist =
 						string.find(tempLine, "%s", string.len(tempLine) - global.getVar("currentColumn") + 2)
-						or string.len(tempLine)
-					tXS = string.len(tempLine) - tXS - global.getVar("currentColumn") + 2
+						or string.len(tempLine) + 1
+					moveDist = string.len(tempLine) - moveDist - global.getVar("currentColumn") + 2
 				end
-				move( "horiz", tXS, use, subMod )
+				move( "horiz", moveDist, use, subMod )
 			end
 		
 
