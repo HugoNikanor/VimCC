@@ -121,13 +121,16 @@ local function move( command, numberMod, actionType, otherMod )
 
 			if actionType == "delete" then
 				local temp = global.getCurLine()
+				-- used since some thing differ when moving forwards and backwarsd
+				local backMod = 1
 				if numberMod < 0 then
 					temp = string.reverse( temp )
 					-- TODO cases in the far edge of the string
 					curX = string.len( temp ) - curX + 2
+					backMod = 0
 				end
 
-				local goal = curX + math.abs(numberMod) + 1
+				local goal = curX + math.abs(numberMod) + backMod
 
 				local outString = 
 					string.sub( temp, 0, curX - 1 ) ..
