@@ -120,15 +120,14 @@ local function move( command, numberMod, actionType, otherMod )
 			local curX = global.getVar("currentColumn")
 
 			if actionType == "delete" then
-				-- Is there a reason for this not being local?
-				temp = global.getCurLine()
+				local temp = global.getCurLine()
 				if numberMod < 0 then
 					temp = string.reverse( temp )
 					-- TODO cases in the far edge of the string
 					curX = string.len( temp ) - curX + 2
 				end
 
-				local goal = curX + math.abs(numberMod)
+				local goal = curX + math.abs(numberMod) + 1
 
 				local outString = 
 					string.sub( temp, 0, curX - 1 ) ..
@@ -262,7 +261,6 @@ function runViCommand( command )
 				global.setVar("topLine", tLine)
 			end
 
-		-- Both of these delete one character to little
 		elseif command[#command] == "f" or 
 		   command[#command] == "t" then
 		   local event, keyToFind = os.pullEvent("char")
@@ -331,7 +329,8 @@ function runViCommand( command )
 					string.find(global.getCurLine(), "%s", global.getVar("currentColumn"))
 					or string.len(global.getCurLine())
 				tXS = tXS - global.getVar("currentColumn") + 1
-				move( "horiz", tXS, use, sumMod )
+				if use == "delete" then tXS = tXS - 1 end
+				move( "horiz", tXS, use, subMod )
 			end
 		
 		-- 'de' delets one character to little
@@ -427,7 +426,7 @@ function runViCommand( command )
 			vimode.insertMode("here")
 		
 		elseif command[#command] == "I" then
-			if command[1] == "g" then
+			if otherMod == "g" then
 				vimode.insertMode("0")
 			else
 				vimode.insertMode("beginning")
