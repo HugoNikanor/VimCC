@@ -333,7 +333,6 @@ function runViCommand( command )
 				move( "horiz", tXS, use, subMod )
 			end
 		
-		-- 'de' delets one character to little
 		elseif command[#command] == "e" or command[#command] == "E" then
 			for i=1, numMod do
 				local tXS =
@@ -352,6 +351,8 @@ function runViCommand( command )
 					string.find(tempLine, "%s", string.len(tempLine) - global.getVar("currentColumn") + 2)
 					or string.len(tempLine)
 				tXS = string.len(tempLine) - tXS - global.getVar("currentColumn") + 2
+				-- this is used if the character directly behind the cursor is a space
+				-- Then the cursor should jump to the next (previous) word
 				if tXS == 0 then
 					move( "horiz", -1, use, "n" )
 					tXS =
@@ -474,7 +475,7 @@ function runExCommand( command )
 
 	function fun.q()
 		if global.getVar("hasChanged") then
-			screen.printErrMsg("No write since last change, ! to override")
+			screen.echoerr("No write since last change, ! to override")
 		else
 			global.setVar("running", false)
 		end
@@ -487,7 +488,7 @@ function runExCommand( command )
 	end
 
 	for i=1, #cmd do
-		screen.printErrMsg(cmd[i])
+		screen.echoerr(cmd[i])
 		fun[cmd[i]]()
 	end
 end
