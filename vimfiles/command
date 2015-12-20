@@ -429,14 +429,12 @@ function runViCommand( command )
 				string.sub(
 					global.getCurLine(),
 					1,
-					global.getVar("currentColumn") - 1)
-			for i=1, numMod do
-				tempString = tempString .. repl
-			end
-			tempString = tempString .. string.sub(
-				global.getCurLine(),
-				global.getVar("currentColumn"),
-				string.len(global.getCurLine()))
+					global.getVar("currentColumn") - 1) ..
+				string.rep(repl, numMod) ..
+				string.sub(
+					global.getCurLine(),
+					global.getVar("currentColumn"),
+					string.len(global.getCurLine()))
 			global.setCurLine( tempString )
 			
 
@@ -514,7 +512,7 @@ function runExCommand( command )
 	end
 
 	for i=1, #cmd do
-		screen.echoerr(cmd[i])
+		--screen.echoerr(cmd[i])
 		fun[cmd[i]]()
 	end
 end
