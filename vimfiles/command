@@ -425,41 +425,35 @@ function runViCommand( command )
 		elseif command[#command] == "r" then
 			local ev, repl = os.pullEvent("char")
 			move( "horiz", numMod - 1, "delete", subMod )
-			local tempString = 
-				string.sub(
-					global.getCurLine(),
-					1,
-					global.getVar("currentColumn") - 1) ..
-				string.rep(repl, numMod) ..
-				string.sub(
-					global.getCurLine(),
-					global.getVar("currentColumn"),
-					string.len(global.getCurLine()))
-			global.setCurLine( tempString )
+			vimode.insertText( 
+				"here",
+				string.rep( repl, numMod ))
+			move( "horiz", numMod - 1, "move", "n" )
 			
 
 
 		elseif command[#command] == "i" then
-			vimode.insertMode("here")
+			local str = vimode.insertMode("here")
+			screen.echo(str)
 		
 		elseif command[#command] == "I" then
 			if otherMod == "g" then
-				vimode.insertMode("0")
+				local str = vimode.insertMode("0")
 			else
-				vimode.insertMode("beginning")
+				local str = vimode.insertMode("beginning")
 			end
 		
 		elseif command[#command] == "a" then
-			vimode.insertMode("after")
+			local str = vimode.insertMode("after")
 		
 		elseif command[#command] == "A" then
-			vimode.insertMode("end")
+			local str = vimode.insertMode("end")
 
 		elseif command[#command] == "o" then
-			vimode.insertMode("newline")
+			local str = vimode.insertMode("newline")
 
 		elseif command[#command] == "O" then
-			vimode.insertMode("prevline")
+			local str = vimode.insertMode("prevline")
 
 		elseif otherMod == "Z" then
 			if command[#command] == "Z" then

@@ -46,15 +46,48 @@ function commandMode()
 	end
 end
 
+function insertText( pos, text )
+	local line, column
+
+	if pos == "newline"    or
+	   pos == "prevline" then
+	   line = global.getVar("currentLine") + 1
+	   global.insertLine( line )
+	   column = 1
+	else
+		line = global.getVar("currentLine")
+		if pos == "here" then
+			column = global.getVar("currentColumn")
+		elseif pos == "after" then
+			column = global.getVar("currentColumn") + 1
+		elseif pos == "beginning" then
+			column = string.len(string.match(global.getLine(line), "%s*"))
+			column = column + 1
+		elseif pos == "0" then
+			column = 1
+		elseif pos == "end" then
+			column = string.len(global.getLine(line))
+		end
+	end
+
+	strBefore = string.sub(global.getLine( line ), 1, column - 1)
+	strAfter  = string.sub(global.getLine( line ), column )
+
+	global.setLine( line, strBefore .. text .. strAfter )
+
+end
+
 -- pos: where should insert mode be entered in realtion to the cursor
-function insertMode(pos)
+function insertMode( pos )
+	-- TODO find better way to eat event
 	os.sleep(0.1)
 
 	local strBefore
 	local strAfter
 
-	global.setVar("hasChanged", true)
+	local strChange = ""
 
+	global.setVar("hasChanged", true)
 
 	if pos == "here" then
 	elseif pos == "after" then
@@ -104,6 +137,8 @@ function insertMode(pos)
 				global.setVar("currentColumn", global.getVar("currentColumn") - 1)
 				global.setLine(global.getVar("currentLine"), strBefore..strAfter)
 
+				strChange = string.sub( strChange, 1, string.len(strChange) - 1 )
+
 				--term.setCursorPos(column, line)
 			end
 
@@ -125,6 +160,8 @@ function insertMode(pos)
 				global.insertLine(global.getVar("currentLine"), strAfter)
 				strBefore = ""
 
+				strChange = strChange .. "\n"
+
 				--screen.redraw()
 			end
 
@@ -137,14 +174,18 @@ function insertMode(pos)
 			global.setVar("currentColumn", global.getVar("currentColumn") + 1)
 
 			strBefore = strBefore..key
+			strChange = strChange .. key
 			
 			global.setLine(global.getVar("currentLine"), strBefore..strAfter)
+
 			screen.redraw()
 		end
 
 		-- pull next event
 		event, key = os.pullEvent()
 	end
+
+	return strChange
 
 end
 
