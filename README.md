@@ -11,7 +11,6 @@
 - buffers (at least one)
 - undo
 - reverse find (`F` & `T`) 
-- Repeating insert commands
 - . (repeat last change)
 - C-u
 - C-d

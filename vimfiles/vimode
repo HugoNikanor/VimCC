@@ -52,8 +52,7 @@ function insertText( pos, text )
 	if pos == "newline"    or
 	   pos == "prevline" then
 	   line = global.getVar("currentLine") + 1
-	   global.insertLine( line )
-	   column = 1
+	   global.insertLine( line, text )
 	else
 		line = global.getVar("currentLine")
 		if pos == "here" then
@@ -68,12 +67,12 @@ function insertText( pos, text )
 		elseif pos == "end" then
 			column = string.len(global.getLine(line))
 		end
+		strBefore = string.sub(global.getLine( line ), 1, column - 1)
+		strAfter  = string.sub(global.getLine( line ), column )
+
+		global.setLine( line, strBefore .. text .. strAfter )
 	end
 
-	strBefore = string.sub(global.getLine( line ), 1, column - 1)
-	strAfter  = string.sub(global.getLine( line ), column )
-
-	global.setLine( line, strBefore .. text .. strAfter )
 
 end
 
@@ -93,7 +92,7 @@ function insertMode( pos )
 	elseif pos == "after" then
 		global.setVar("currentColumn", global.getVar("currentColumn") + 1)
 	elseif pos == "beginning" then
-		global.setVar("currentColumn", string.len(string.match(global.getCurLine(), "%s*")))
+		global.setVar("currentColumn", string.len(string.match(global.getCurLine(), "%s*")) + 1) 
 	elseif pos == "0" then
 		global.setVar("currentColumn", 1)
 	elseif pos == "end" then
@@ -186,7 +185,6 @@ function insertMode( pos )
 	end
 
 	return strChange
-
 end
 
 function normalMode()

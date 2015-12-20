@@ -435,25 +435,46 @@ function runViCommand( command )
 		elseif command[#command] == "i" then
 			local str = vimode.insertMode("here")
 			screen.echo(str)
+			for i=2, numMod do
+				vimode.insertText( "here", str )
+			end
 		
 		elseif command[#command] == "I" then
 			if otherMod == "g" then
 				local str = vimode.insertMode("0")
+				for i=2, numMod do
+					vimode.insertText( "0", str )
+				end
 			else
 				local str = vimode.insertMode("beginning")
+				for i=2, numMod do
+					vimode.insertText( "beginning", str )
+				end
 			end
 		
 		elseif command[#command] == "a" then
 			local str = vimode.insertMode("after")
+			for i=2, numMod do
+				vimode.insertText( "here", str )
+			end
 		
 		elseif command[#command] == "A" then
 			local str = vimode.insertMode("end")
+			for i=2, numMod do
+				vimode.insertText( "end", str )
+			end
 
 		elseif command[#command] == "o" then
 			local str = vimode.insertMode("newline")
+			for i=2, numMod do
+				vimode.insertText( "newline", str )
+			end
 
 		elseif command[#command] == "O" then
 			local str = vimode.insertMode("prevline")
+			for i=2, numMod do
+				vimode.insertText( "prevline", str )
+			end
 
 		elseif otherMod == "Z" then
 			if command[#command] == "Z" then
