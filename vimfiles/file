@@ -24,6 +24,11 @@ function read(path)
 			tempLine = file:read()
 		end
 		file:close()
+
+		-- inserts a new line if the file is complealty empty
+		if( lines[0] == nil ) then
+			lines[#lines + 1] = ""
+		end
 	else
 		lines[#lines + 1] = ""
 	end
