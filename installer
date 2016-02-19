@@ -1,4 +1,7 @@
--- download the git files
+-- Script for downloading and "installing" the VimCC program for 
+-- ComputerCraft computers
+-- More information at https://github.com/HugoNikanor/VimCC
+
 print( "This program will connect to the web, download some files and write 
         them to some newly created directories in the file system." )
 print( "continue? [yn]" )
