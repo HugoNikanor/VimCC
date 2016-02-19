@@ -22,7 +22,7 @@ Possible values:
 
 Note that the logs probably aren't readable by anyone at the moment
 ]]--
-logLevel = "ALL"
+logLevel = "NONE"
 
 --[[ ESCAPE BUTTON
 Possible values:

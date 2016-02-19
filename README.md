@@ -66,10 +66,6 @@ Currently almost nothing is logged, but the support is there.
 - Characters that aren't ASCII 7 (limitiation in ComputerCraft/Minecraft)
 - useful user configuration
 
-### Bugs!
-- **Trying to edit an empty file crases the editor!**
-- `W`, `E` & `B` don't wrap around lines
-
 ## Improving
 If you are interested in trying to add new features or fix the already existing
 ones, look to the [command](./vimfiles/command) since there is where both the vi
