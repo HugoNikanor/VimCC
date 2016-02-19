@@ -56,7 +56,7 @@ Currently almost nothing is logged, but the support is there.
 - support for commands executed by holding down `CTRL` and another key
 - Replace mode
 - splits (like the screen is big enough for that...)
-- syntax highlighting (but this shouldn`t be to hard)
+- syntax highlighting (but this shouldn't be to hard)
 - better vimrc support
 - `;` & `,`
 - `(`, `)`, `{`, `}`, `[[`, `[]`, `]]`, `][`
@@ -66,10 +66,12 @@ Currently almost nothing is logged, but the support is there.
 - Characters that aren't ASCII 7 (limitiation in ComputerCraft/Minecraft)
 - useful user configuration
 
-### Other
-TODO quick guide in improving stuff 
-
 ### Bugs!
 - **Trying to edit an empty file crases the editor!**
-- `W`, `E` & `B` don`t wrap around lines
+- `W`, `E` & `B` don't wrap around lines
+
+## Improving
+If you are interested in trying to add new features or fix the already existing
+ones, look to the [command](./vimfiles/command) since there is where both the vi
+and the ex commands are defined.
 
