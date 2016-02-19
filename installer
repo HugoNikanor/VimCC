@@ -1,4 +1,11 @@
 -- download the git files
+args = {...}
+
+if args[1] == nil then
+	print("usage: 'installer bare' to just download the files.")
+	print("       'installer runnable' to also set up /.bin dir")
+	error("this was the help")
+end
 
 if fs.exists("/utils") then
 	if not fs.isDir("/utils") or fs.isReadOnly("/utils") then
@@ -8,7 +15,6 @@ else
 	fs.makeDir("/utils")
 end
 fs.makeDir("/utils/vimfiles")
--- fs.makeDir("/utils/executables")
 
 if not http.request("https://github.com/hugonikanor/vimcc") then
 	error("couldn't connect to the servers for download")
@@ -38,6 +44,14 @@ for i=1, #filenames do
 	file.write( filedata.readAll() )
 	file.close();
 end
+print("files downloaded!")
 
-print("files downloaded, now set up your path variable!")
+if args[1] == "runnable" then
+	fs.makeDir("/bin")
+	fs.copy( "/utils/vimfiles/vim" "/bin/vim" )
+	print("add:
+	print("'shell.setPath(shell.path()..\":/bin\"'")
+	print("to your startup file.")
+end
+
 print("you can also delete the installer if you want");
