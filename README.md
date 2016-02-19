@@ -35,15 +35,17 @@ or I might just not be aware of it.
 
 ### Vimrc
 There are currently only very limited vimrc support. The default vimrc (with
-usage information) is avalible [here](./vimfiles/vimrcDefaultr). A user
+usage information) is avalible [here](./vimfiles/vimrcDefault). A user
 configured file can be placed in the ComputerCraft computers root directory, and
 must be named `.vimrc`.
 
 ### Logging
-There are logs, created in the hidden directory `.vimlog' in the ComputerCraft
+There are logs, created in the hidden directory `.vimlog` in the ComputerCraft
 computers root directory. By default the log level is set to `NONE`, but this
-can be chnaged in the vimrc file
+can be changed in the vimrc file.
 
+Currently almost nothing is logged, but the support is there.
+.
 ### Unsupported Features
 - Ex commands!
 - `~` (switch case)
