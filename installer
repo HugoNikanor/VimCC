@@ -1,11 +1,16 @@
 -- download the git files
-args = {...}
-
-if args[1] == nil then
-	print("usage: 'installer bare' to just download the files.")
-	print("       'installer runnable' to also set up /.bin dir")
-	error("this was the help")
+print( "This program will connect to the web, download some files and write 
+        them to some newly created directories in the file system." )
+print( "continue? [yn]" )
+local key = 0
+while not (key == keys.n or key == keys.y) do
+	evt, key = os.pullEvent("key")
 end
+if key == keys.n then
+	key = 0
+	error("user quitted")
+end
+
 
 if fs.exists("/utils") then
 	if not fs.isDir("/utils") or fs.isReadOnly("/utils") then
@@ -42,16 +47,13 @@ for i=1, #filenames do
 	print("downloading " .. filenames[i] .. "..." )
 	local file = fs.open("/utils/vimfiles/" .. filenames[i], "w")
 	file.write( filedata.readAll() )
-	file.close();
+	file.close()
 end
 print("files downloaded!")
 
-if args[1] == "runnable" then
-	fs.makeDir("/bin")
-	fs.copy( "/utils/vimfiles/vim" "/bin/vim" )
-	print("add:
-	print("'shell.setPath(shell.path()..\":/bin\"'")
-	print("to your startup file.")
-end
+fs.makeDir("/bin")
+fs.copy( "/utils/vimfiles/vim", "/bin/vim" )
 
-print("you can also delete the installer if you want");
+print("add:")
+print("   'shell.setPath(shell.path()..\":/bin\"'")
+print("to your 'startup' file to run vim from anywhere!")
