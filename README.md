@@ -1,4 +1,10 @@
 # VimCC
+Dissatisfied with the existing editor in ComputerCraft (seriously, try using it 
+while relying on alt-gr for special characters!) so I decided to port Vim.
+
+This is far from a perfect port, but it gets the job done for quick code edits
+on the fly. But I would still recommend opening the code files in a more well
+built editor for longer editing. 
 
 ## Installation
 There are two ways to install the program:
