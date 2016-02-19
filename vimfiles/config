@@ -8,8 +8,13 @@ end
 os.loadAPI(userPath)
 
 function get( key )
-	local val = _G[".vimrc"][key]
-	if val == nil then 
+	local val
+	if fs.exists("/.vimrc") then
+		val = _G[".vimrc"][key]
+		if val == nil then 
+			val = vimrcDefault[key]
+		end
+	else
 		val = vimrcDefault[key]
 	end
 	return val
