@@ -21,8 +21,9 @@ Possible values:
 	NONE
 
 Note that the logs probably aren't readable by anyone at the moment
+TODO Setting this to "NONE" crashes the program...
 ]]--
-logLevel = "NONE"
+logLevel = "ALL"
 
 --[[ ESCAPE BUTTON
 Possible values:
