@@ -1,39 +1,73 @@
 # VimCC
 
-## Features
-### Supported commands
-*And how they differ from the real deal*
-`W`, `E` & `B` don`t wrap around lines
+## Installation
+There are two ways to install the program:
+### Via the Installer
+The installer is both available as part of this [repo](./installer),
+and as a download from pastebin, which can be directly gotten in the game by
+running the following command in a ComputerCraft terminal: 
 
-### Currently unsupported features that would be nice to have
-- **Ex commands!**
-- ~ (switch case)
+	pastebin get j1NxmAzb installer
+
+and then running the installer program
+
+### Manually
+download all the files from here.
+All files needed for running are in the [vimfiles](./vimfiles) directory.
+
+In ComputerCraft the files need to be placed as following:
+	/utils/vimfiles/*
+
+Then I would also recommend creating a `/bin` directory and copying the `vim`
+file there, and then adding that directory to your path, to allowing for
+starting vim anywhere without having all the other files clutter up your path.
+
+### Updating
+Delete the old files and download the new version.
+
+## Features and Bugs
+Most basic vim movements are here, along with some other features (deletion,
+merging lines...)
+
+### Feature availability
+If the feature isn't listed below as not available then it probably is available,
+or I might just not be aware of it.
+
+### Vimrc
+There are currently only very limited vimrc support. The default vimrc (with
+usage information) is avalible [here](./vimfiles/vimrcDefaultr). A user
+configured file can be placed in the ComputerCraft computers root directory, and
+must be named `.vimrc`.
+
+### Logging
+There are logs, created in the hidden directory `.vimlog' in the ComputerCraft
+computers root directory. By default the log level is set to `NONE`, but this
+can be chnaged in the vimrc file
+
+### Unsupported Features
+- Ex commands!
+- `~` (switch case)
 - buffers (at least one)
 - undo
 - reverse find (`F` & `T`) 
-- . (repeat last change)
-- C-u
-- C-d
-- support for commands executed by holding down CTRL and another key
-- `w`, `e` & `b`, currently only `W`, `E` & `B` are supported. With the lower
-
-### Currently unsupported features that isn`t that important
-- 'R' replace mode
+- `.` (repeat last command)
+- support for commands executed by holding down `CTRL` and another key
+- Replace mode
 - splits (like the screen is big enough for that...)
 - syntax highlighting (but this shouldn`t be to hard)
 - better vimrc support
 - `;` & `,`
 - `(`, `)`, `{`, `}`, `[[`, `[]`, `]]`, `][`
-- `/`, `?` (serching)
+- searching
 - `%` (go to matching bracket)
 - Line numbering
+- Characters that aren't ASCII 7 (limitiation in ComputerCraft/Minecraft)
+- useful user configuration
 
+### Other
+TODO quick guide in improving stuff 
 
-## instalation
+### Bugs!
+- **Trying to edit an empty file crases the editor!**
+- `W`, `E` & `B` don`t wrap around lines
 
-
-## Other
-### Features parts of the program that I would like where done differently
-If the contents of the file could be stored as one large string instead of many
-small strings, then searching the whole file would be easy. Also, `w` and the
-like would be able to line wrap
