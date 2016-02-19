@@ -2,8 +2,7 @@
 -- ComputerCraft computers
 -- More information at https://github.com/HugoNikanor/VimCC
 
-print( "This program will connect to the web, download some files and write 
-        them to some newly created directories in the file system." )
+print( "This program will connect to the web, download some files and write them to some newly created directories in the file system." )
 print( "continue? [yn]" )
 local key = 0
 while not (key == keys.n or key == keys.y) do
