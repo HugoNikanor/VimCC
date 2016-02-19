@@ -434,7 +434,6 @@ function runViCommand( command )
 
 		elseif command[#command] == "i" then
 			local str = vimode.insertMode("here")
-			screen.echo(str)
 			for i=2, numMod do
 				vimode.insertText( "here", str )
 			end

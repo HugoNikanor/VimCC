@@ -47,6 +47,7 @@ function commandMode()
 end
 
 function insertText( pos, text )
+	global.setVar( "hasChanged", true )
 	local line, column
 
 	if pos == "newline"    or

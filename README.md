@@ -18,8 +18,7 @@
 - `w`, `e` & `b`, currently only `W`, `E` & `B` are supported. With the lower
 
 ### Currently unsupported features that isn`t that important
-- R
-case variants mapped to the upper case variants
+- 'R' replace mode
 - splits (like the screen is big enough for that...)
 - syntax highlighting (but this shouldn`t be to hard)
 - better vimrc support

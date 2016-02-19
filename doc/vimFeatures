@@ -1,6 +1,7 @@
+=== Feature List ===
 -- Saving --
-ZZ [ ] - save and exit
-ZQ [ ] - force quit
+ZZ [X] - save and exit
+ZQ [X] - force quit
 
 -- Insert mode --
 a [/] - append char (lacks repeat function)
@@ -16,32 +17,12 @@ x [X] - del char
 X [/] - del prev (possible edge bug)
 d{mot} [/] - will be done when all motions are done
 
+-- Other --                
+zb - scrolls one line to far
                 
-                
-
 === Lacking features ===
-r - replace
 R - replace mode (insert with override)
-~ - switch case
-~ { motion }
-
-zz \
-zt  |- move screen to match cursor
-zb /
-
-
-gg
-5gg
-5G
-
-
-
-
-
-
-
-
-
+~ - switch case ( with motion )
 
 
 ---
