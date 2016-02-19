@@ -326,7 +326,45 @@ function runViCommand( command )
 				move( "vert", moveDist, use, subMod )
 
 
-		elseif command[#command] == "w" or command[#command] == "W" then
+		elseif command[#command] == "w" then
+			for i=1, numMod do
+				local tXS =
+					string.find(global.getCurLine(), "[%s%p]", global.getVar("currentColumn"))
+					or string.len(global.getCurLine())
+				tXS = tXS - global.getVar("currentColumn") + 1
+				if use == "delete" then tXS = tXS - 1 end
+				move( "horiz", tXS, use, subMod )
+			end
+		
+		elseif command[#command] == "e" then
+			for i=1, numMod do
+				local tXS =
+					string.find(global.getCurLine(), "[%s%p]", global.getVar("currentColumn") + 2)
+					or string.len(global.getCurLine())
+				tXS = tXS - global.getVar("currentColumn") - 1
+				move( "horiz", tXS, use, subMod )
+			end
+
+		elseif command[#command] == "b" then
+			for i=1, numMod do
+				local tempLine = string.reverse(global.getCurLine())
+				local tXS =
+					string.find(tempLine, "[%s%p]", string.len(tempLine) - global.getVar("currentColumn") + 1)
+					or string.len(tempLine) + 1
+				local moveDist = string.len(tempLine) - tXS - global.getVar("currentColumn") + 2
+				-- this is used if the character directly behind the cursor is a space
+				-- Then the cursor should jump to the next (previous) word
+				if moveDist == 0 and tXS ~= string.len(tempLine) + 1 then
+					move( "horiz", -1, use, "n" )
+					moveDist =
+						string.find(tempLine, "[%s%p]", string.len(tempLine) - global.getVar("currentColumn") + 2)
+						or string.len(tempLine) + 1
+					moveDist = string.len(tempLine) - moveDist - global.getVar("currentColumn") + 2
+				end
+				move( "horiz", moveDist, use, subMod )
+			end
+
+		elseif command[#command] == "W" then
 			for i=1, numMod do
 				local tXS =
 					string.find(global.getCurLine(), "%s", global.getVar("currentColumn"))
@@ -336,7 +374,7 @@ function runViCommand( command )
 				move( "horiz", tXS, use, subMod )
 			end
 		
-		elseif command[#command] == "e" or command[#command] == "E" then
+		elseif command[#command] == "E" then
 			for i=1, numMod do
 				local tXS =
 					string.find(global.getCurLine(), "%s", global.getVar("currentColumn") + 2)
@@ -345,7 +383,7 @@ function runViCommand( command )
 				move( "horiz", tXS, use, subMod )
 			end
 
-		elseif command[#command] == "b" or command[#command] == "B" then
+		elseif command[#command] == "B" then
 			for i=1, numMod do
 				local tempLine = string.reverse(global.getCurLine())
 				local tXS =
