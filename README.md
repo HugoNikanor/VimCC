@@ -1,4 +1,6 @@
 # VimCC
+**By default `tab` is binded to exit insert mode, this can be rebound in the vimrc!**
+
 Dissatisfied with the existing editor in ComputerCraft (seriously, try using it 
 while relying on alt-gr for special characters!) so I decided to port Vim.
 
