@@ -45,9 +45,13 @@ end
 -- for error messages shown at the bottom of the screen
 function echoerr( message )
 	term.setCursorPos(1, global.getVar("termY"))
-	term.setBackgroundColour( colors.red )
+	if term.isColor() then
+		term.setBackgroundColour( colors.red )
+	end
 	term.write( message )
-	term.setBackgroundColour( colors.black )
+	if term.isColor() then
+		term.setBackgroundColour( colors.black )
+	end
 end
 
 -- for other messages to be shown at the bottom of the screen
