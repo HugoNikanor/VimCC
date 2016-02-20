@@ -283,7 +283,7 @@ function runViCommand( command )
 					global.getCurLine(),
 					keyToFind,
 					startPos ) - 
-					global.getVar("currentColumn") - 
+					global.getVar("currentColumn") - --TODO this might have a nil problem
 					numMod * tMod or 0
 				move( "horiz", tempX, use, "n" )
 			end
