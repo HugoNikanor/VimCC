@@ -57,5 +57,5 @@ fs.makeDir("/bin")
 fs.copy( "/utils/vimfiles/vim", "/bin/vim" )
 
 print("add:")
-print("   'shell.setPath(shell.path()..\":/bin\"'")
+print("   'shell.setPath(shell.path()..\":/bin\")'")
 print("to your 'startup' file to run vim from anywhere!")
