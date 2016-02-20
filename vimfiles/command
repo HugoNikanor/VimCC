@@ -565,6 +565,10 @@ function runExCommand( command )
 
 	for i=1, #cmd do
 		--screen.echoerr(cmd[i])
-		fun[cmd[i]]()
+		if fun[cmd[i]] ~= nil then
+			fun[cmd[i]]()
+		else
+			screen.echoerr("No such command")
+		end
 	end
 end
