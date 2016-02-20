@@ -27,7 +27,7 @@ logLevel = "NONE"
 --[[ ESCAPE BUTTON
 Possible values:
 	anything found in the keys api
-	http://www.comuptercraft.info/wiki/Keys_(API)
+	http://www.computercraft.info/wiki/Keys_(API)
 	But I would recommend against taking a key used for something else...
 ]]--
 escBtn = keys.tab
