@@ -20,9 +20,7 @@ The installer is both available as part of this [repo](./installer),
 and as a download from pastebin, which can be directly gotten in the game by
 running the following command in a ComputerCraft terminal: 
 
-	pastebin get j1NxmAzb installer
-
-and then running the installer program
+	pastebin run j1NxmAzb
 
 ### Manually
 download all the files from here.
