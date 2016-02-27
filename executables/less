@@ -1,0 +1,81 @@
+--[[
+	A program for previewing files in computerCraft
+	Note that this will encounter problems if of the 
+	first line in a file is to long.
+
+	Hugo Hornquist, 20151122
+]]--
+local args = {...}
+
+-- Check if a file is supplied
+if args[1] == nil then
+	error("no file selected")
+end
+
+-- get size of sceen
+local termX, termY = term.getSize()
+
+-- open file
+local file = fs.open(args[1], "r")
+
+-- load file into array
+local lines = {}
+local lineNo = 1
+local tempLine = file.readLine()
+while tempLine ~= nil do
+	lines[lineNo] = tempLine
+	lineNo = lineNo + 1
+	tempLine = file.readLine()
+end
+
+local fileSize = lineNo
+
+file.close()
+
+
+local linePos = 1
+
+local keyEvent
+local event
+
+local running = true
+
+while running do
+
+	term.clear()
+	term.setCursorPos(1, 1)
+
+	for i=linePos, linePos+termY-2 do
+		if lines[i] ~= nil then
+			print(lines[i])
+		else
+			print("~")
+		end
+	end
+
+	event, keyEvent = os.pullEvent("key")
+
+	if keyEvent == keys.j then
+		linePos = linePos + 1
+	elseif keyEvent == keys.k then
+		linePos = linePos - 1
+	end
+
+	if linePos < 1 then
+		linePos = 1
+	end
+	if linePos >= fileSize then
+		linePos = fileSize - 1
+	end
+
+	-- break with 'c' or 'q'
+	if keyEvent == keys.q or keyEvent == keys.c then
+		running = false
+	end
+
+
+end
+
+term.setCursorPos(1, termY)
+-- eats the quit event keypress
+os.sleep(0.1)
