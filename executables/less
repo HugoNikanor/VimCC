@@ -6,7 +6,8 @@
 	Hugo Hornquist, 20151122
 ]]--
 
-/utils/vimfiles/apiloader.loadAPI( "/utils/vimfiles/" )
+--/utils/vimfiles/apiloader.loadAPI( "/utils/vimfiles/" )
+os.loadAPI( "/utils/vimfiles/apiloader" )
 
 local args = {...}
 
