@@ -1,18 +1,16 @@
-function loadAPI( path )
-	local apiPath = "/utils/vimfiles/"
-	local apis = {
-		"config",
-		"global",
-		"command",
-		"screen",
-		"vimode",
-		"file",
-		"logger",
-	}
-	for i=1, #apis do
-		local test = os.loadAPI(apiPath..apis[i])
-		if not test then
-			error(apis[i])
-		end
+local apiPath = "/utils/vimfiles/"
+local apis = {
+	"config",
+	"global",
+	"command",
+	"screen",
+	"vimode",
+	"file",
+	"logger",
+}
+for i=1, #apis do
+	local test = os.loadAPI(apiPath..apis[i])
+	if not test then
+		error(apis[i])
 	end
 end

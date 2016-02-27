@@ -1,4 +1,5 @@
-/utils/vimfiles/apiloader.loadAPI( "/utils/vimfiles/" );
+--/utils/vimfiles/apiloader.loadAPI( "/utils/vimfiles/" );
+os.loadAPI( "/utils/vimfiles/apiloader" )
 
 -- start main
 local args = {...}
