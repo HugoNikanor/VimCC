@@ -56,6 +56,20 @@ print("files downloaded!")
 fs.makeDir("/bin")
 fs.copy( "/utils/vimfiles/vim", "/bin/vim" )
 
-print("add:")
-print("   'shell.setPath(shell.path()..\":/bin\")'")
-print("to your 'startup' file to run vim from anywhere!")
+print( "write 'shell.setPath(shell.path()..\":/bin\")' to the end of your startup script? This will alow vim to be started from anywhere" )
+print( "continue? [yn]" )
+local key = 0
+while not (key == keys.n or key == keys.y) do
+	evt, key = os.pullEvent("key")
+end
+
+if key == keys.y then
+	local startupFile = fs.open("/startup", "a")
+	startupFile.write( 'shell.setPath(shell.path()..":/bin")\n' )
+	startupFile.close()
+
+	print("Setup completed!")
+	print("Restart your computer to update the startup script")
+else
+	print("Setup completed!")
+end
