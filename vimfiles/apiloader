@@ -1,13 +1,14 @@
-local apiPath = "/utils/vimfiles/"
-local apis = {
-	"config",
-	"global",
+apiPath = "/utils/vimfiles/"
+apis = {
 	"command",
+	"config",
+	"file",
+	"global",
+	"logger",
 	"screen",
 	"vimode",
-	"file",
-	"logger",
 }
+
 function load()
 	for i=1, #apis do
 		local test = os.loadAPI(apiPath..apis[i])
@@ -19,7 +20,7 @@ end
 
 function unload()
 	for i=1, #apis do
-		os.unloadAPI(apiPath..apis[i])
+		os.unloadAPI(apis[i])
 	end
-	os.unloadAPI("/utils/vimfiles/apiloader")
+	os.unloadAPI("apiloader")
 end
