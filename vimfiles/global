@@ -13,6 +13,8 @@ local globals = {
 
 	topLine = 1,
 	running = true,
+
+	lessMode = false,
 }
 
 function getVar(key)

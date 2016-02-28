@@ -38,6 +38,21 @@ local function parseViCommand( presses )
 end
 
 local function cursorVerticalMove( numberMod )
+	if global.getVar( "lessMode" ) then
+		local top = global.getVar("topLine") + numberMod
+		if top < 1 then
+			top = 1
+		end
+		if top > global.getLength() then
+			top = global.getLength()
+		end
+		logger.info("==========")
+		logger.info(global.getLength())
+		logger.info(top)
+
+		global.setVar( "topLine", top )
+		global.setVar( "currentLine", top )
+	else
 		local curLine = global.getVar("currentLine") + numberMod
 
 		-- Check how many lines are on the screen
@@ -88,6 +103,7 @@ local function cursorVerticalMove( numberMod )
 			curX = 1
 		end
 		global.setVar("currentColumn", curX)
+	end
 end
 
 goToStart = nil
@@ -319,7 +335,8 @@ function runViCommand( command )
 			move( "vert", moveDist, use, subMod )
 
 		elseif command[#command] == "g" and
-		       command[#command - 1] == "g" then
+		      (command[#command - 1] == "g" or
+			   global.getVar("lessMode") ) then
 				local moveDist = numMod - global.getVar("currentLine")
 				move( "vert", moveDist, use, subMod )
 

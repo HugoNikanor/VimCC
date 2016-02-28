@@ -220,25 +220,3 @@ function normalMode()
 		end
 	end
 end
-
-function lessMode()
-	term.setCursorBlink(false)
-
-	local keyPresses = {}
-
-	global.setVar("running", true)
-	while global.getVar("running") do
-		local event, key = os.pullEvent()
-
-		if event == "char" then
-			if key == "j" then
-				global.setVar("currentLine", global.getVar("currentLine") + 1)
-			end
-			if key == "k" then
-				global.setVar("currentLine", global.getVar("currentLine") + 1)
-			end
-		end
-		screen.redraw()
-
-	end
-end

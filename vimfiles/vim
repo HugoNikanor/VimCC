@@ -2,6 +2,10 @@
 os.loadAPI( "/utils/vimfiles/apiloader" )
 apiloader.load()
 
+if string.sub(shell.getRunningProgram(), -4) == "less" then
+	global.setVar("lessMode", true)
+end
+
 -- start main
 local args = {...}
 
