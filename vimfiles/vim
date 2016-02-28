@@ -1,5 +1,6 @@
 --/utils/vimfiles/apiloader.loadAPI( "/utils/vimfiles/" );
 os.loadAPI( "/utils/vimfiles/apiloader" )
+apiloader.load()
 
 -- start main
 local args = {...}
@@ -49,12 +50,6 @@ logger.info("log file created")
 
 vimode.normalMode()
 
-
--- Apparently you don't have to unload the api's if they are loaded localy
---[[
-for i=1, #apis do
-	os.unloadAPI(apiPath..apis[i])
-end
-]]
+apiloader.unload()
 term.setCursorPos(1, 1)
 term.clear()
