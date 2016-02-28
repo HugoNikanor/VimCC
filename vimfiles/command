@@ -149,14 +149,35 @@ local function move( command, numberMod, actionType, otherMod )
 
 		elseif actionType == "switchCase" then
 			local lowerCase = {
-				a, b, c, d, e, f, g, h, i, j, k, l, m,
-				n, o, p, q, r, s, t, u, v, w, x, y, z
+				'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+				'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+			}
+			local upperCase = {
+				'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+				'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
 			}
 			local start = global.getVar("currentColumn")
 			local line = global.getCurLine()
-			for i=start, numberMod + start do
-				-- TODO figure out how to swtch case for a string
+
+			logger.info( "numberMod start: " .. numberMod )
+
+			for i=start, numberMod + start - 1 do
+				for c=1, #lowerCase do
+					local hasChanged = false
+					if line:sub(i, i) == lowerCase[c] then
+						line = line:sub(1, i - 1) .. upperCase[c] .. line:sub( i + 1 )
+						logger.info( "made " .. lowerCase[c] .. " upper case" )
+						hasChanged = true
+					end
+					if line:sub(i, i) == upperCase[c] and not hasChanged then
+						line = line:sub(1, i - 1) .. lowerCase[c] .. line:sub( i + 1 )
+						logger.info( "made " .. upperCase[c] .. " lower case" )
+					end
+				end
 			end
+			global.setCurLine( line )
+			logger.info( "numberMod end: " .. numberMod )
+			move( "horiz", numberMod, "move", "n" )
 
 
 		else -- simple move
@@ -308,7 +329,6 @@ function runViCommand( command )
 		       tonumber(command[#command - 1]) == nil then
 			goToStart( use, "line" )
 
-
 		elseif command[#command] == "G" then
 			local moveDist
 			if numMod == 1 then
@@ -410,9 +430,8 @@ function runViCommand( command )
 			move( "delEol", numMod - 1, "delEol", "n" )
 			goToEndOfLine( "delete", "i" )
 
-		--elseif command[#command] == "~" then
-		--	TODO figure out how to make this work
-		--	move( "horiz", numMod, "switchCase", "n" )
+		elseif command[#command] == "~" then
+			move( "horiz", numMod, "switchCase", subMod )
 
 
 
