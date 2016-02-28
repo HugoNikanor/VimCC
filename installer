@@ -37,6 +37,7 @@ local filenames = {
 	"vim",
 	"vimode",
 	"vimrcDefault",
+	"apiloader"
 }
 
 local baseurl = "https://raw.githubusercontent.com/HugoNikanor/VimCC/master/vimfiles/"
