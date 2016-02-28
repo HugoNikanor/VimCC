@@ -59,7 +59,6 @@ Currently almost nothing is logged, but the support is there.
 .
 ### Unsupported Features
 - Ex commands!
-- `~` (switch case)
 - buffers (at least one)
 - undo
 - reverse find (`F` & `T`) 
