@@ -8,6 +8,15 @@ This is far from a perfect port, but it gets the job done for quick code edits
 on the fly. But I would still recommend opening the code files in a more well
 built editor for longer editing. 
 
+## Modes
+The program comes with two mode, the primary 'vim' mode that works as closely
+to the really deal as possibly. There is also a 'less' mode, which is a much
+worse recreation, but it's there if you want it.
+
+Note that the less mode still is a bit to close to the vim mode, so `:q` is
+still needed to quit it, and the file can still be edited. Proceed with
+caution.
+
 ## Forks
 A fork of this program for the "OpenComputers" mod is available 
 [here](https://github.com/Vexatos/VimOC). This is an "official" port, but I'm
