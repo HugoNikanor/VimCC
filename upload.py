@@ -28,4 +28,6 @@ with open("PASTEBIN_API_KEY", "r") as key, open("installer", "r") as installer, 
 			print(response)
 			exit()
 		code = response[20:]
-		readme.write(re.sub("The current pastebin code: `\w+`", "The current pastebin code: `" + code + "`", readmetext))
+		readmetext = re.sub("pastebin run \w+", "pastebin run " + code, readmetext)
+		readmetext = re.sub("The current pastebin code: `\w+`", "The current pastebin code: `" + code + "`", readmetext)
+		readme.write(readmetext)
