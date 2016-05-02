@@ -1,4 +1,7 @@
 # VimCC
+
+The current pastebin code: `HiD53ugy`
+
 **By default `tab` is binded to exit insert mode, this can be rebound in the vimrc!**
 
 Dissatisfied with the existing editor in ComputerCraft (seriously, try using it 
@@ -20,7 +23,7 @@ The installer is both available as part of this [repo](./installer),
 and as a download from pastebin, which can be directly gotten in the game by
 running the following command in a ComputerCraft terminal: 
 
-	pastebin run j1NxmAzb
+	pastebin run [pastebin code]
 
 ### Manually
 download all the files from here.
