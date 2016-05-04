@@ -59,7 +59,7 @@ computers root directory. By default the log level is set to `NONE`, but this
 can be changed in the vimrc file.
 
 Currently almost nothing is logged, but the support is there.
-.
+
 ### Unsupported Features
 - Ex commands!
 - buffers (at least one)
@@ -79,8 +79,12 @@ Currently almost nothing is logged, but the support is there.
 - Characters that aren't ASCII 7 (limitiation in ComputerCraft/Minecraft)
 - useful user configuration
 
-## Improving
+## Contributing
 If you are interested in trying to add new features or fix the already existing
 ones, look to the [command](./vimfiles/command) since there is where both the vi
 and the ex commands are defined.
+
+If you make changes to the installer, be sure to use `upload.py` to create a new
+pastebin link. You will need a pastebin [api key](http://pastebin.com/api), this
+should be stored in a file named `PASTEBIN_API_KEY` in the root directory.
 
