@@ -28,16 +28,16 @@ if not http.request("https://github.com/hugonikanor/vimcc") then
 end
 
 local filenames = {
-	"command",
-	"config",
-	"file",
-	"global",
-	"logger",
-	"screen",
-	"vim",
-	"vimode",
-	"vimrcDefault",
-	"apiloader"
+	"command.lua",
+	"config.lua",
+	"file.lua",
+	"global.lua",
+	"logger.lua",
+	"screen.lua",
+	"vim.lua",
+	"vimode.lua",
+	"vimrcDefault.lua",
+	"apiloader.lua"
 }
 
 local baseurl = "https://raw.githubusercontent.com/HugoNikanor/VimCC/master/vimfiles/"
@@ -48,7 +48,7 @@ for i=1, #filenames do
 	local filedata = http.get( baseurl .. filenames[i] );
 
 	print("downloading " .. filenames[i] .. "..." )
-	local file = fs.open("/utils/vimfiles/" .. filenames[i], "w")
+	local file = fs.open("/utils/vimfiles/" .. filenames[i]:sub(1, -5), "w")
 	file.write( filedata.readAll() )
 	file.close()
 end

@@ -9,7 +9,7 @@ readme = open("README.md", "r")
 readmetext = readme.read()
 readme.close()
 
-with open("PASTEBIN_API_KEY", "r") as key, open("installer", "r") as installer, open("README.md", "w") as readme:
+with open("PASTEBIN_API_KEY", "r") as key, open("installer.lua", "r") as installer, open("README.md", "w") as readme:
 	key = key.read()
 	values = {
 		'api_dev_key': key.strip(),
