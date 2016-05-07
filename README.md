@@ -1,4 +1,12 @@
 # VimCC
+## About this branch
+This branch is a test to repurpose the VimCC codebase into a version of the 
+program 'less'. This didn't work as intended.
+
+This branch will live on here for a bit longer, but will probably one day die.
+
+## Regular VimCC README
+
 **By default `tab` is binded to exit insert mode, this can be rebound in the vimrc!**
 
 Dissatisfied with the existing editor in ComputerCraft (seriously, try using it 
