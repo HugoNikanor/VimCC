@@ -1,6 +1,6 @@
 # VimCC
 
-The current pastebin code: `n8Js591v`
+The current pastebin code: `Q45Vadaw`
 
 **By default `tab` is binded to exit insert mode, this can be rebound in the vimrc!**
 
@@ -23,7 +23,7 @@ The installer is both available as part of this [repo](./installer),
 and as a download from pastebin, which can be directly gotten in the game by
 running the following command in a ComputerCraft terminal: 
 
-	pastebin run n8Js591v
+	pastebin run Q45Vadaw
 
 ### Manually
 download all the files from here.
