@@ -88,3 +88,7 @@ If you make changes to the installer, be sure to use `upload.py` to create a new
 pastebin link. You will need a pastebin [api key](http://pastebin.com/api), this
 should be stored in a file named `PASTEBIN_API_KEY` in the root directory.
 
+General pull requests should be to the master branch.
+Only create a pull request to another branch if you really believe that the request
+is only applicable to that branch.
+
