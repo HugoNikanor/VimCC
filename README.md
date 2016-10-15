@@ -81,7 +81,7 @@ Currently almost nothing is logged, but the support is there.
 
 ## Contributing
 If you are interested in trying to add new features or fix the already existing
-ones, look to the [command](./vimfiles/command) since there is where both the vi
+ones, look to the [command](./vimfiles/command.lua) since there is where both the vi
 and the ex commands are defined.
 
 If you make changes to the installer, be sure to use `upload.py` to create a new
